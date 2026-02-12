@@ -91,19 +91,32 @@
 
       <div class="row row-cols-1 row-cols-md-4 g-2 mt-2">
         <div
-          v-for="category in popularCategories"
-          :key="`cat-${category.c_id}`"
+          v-for="product in popularCategoryProducts"
+          :key="`popular-cat-product-${product.p_id}`"
           class="col d-flex"
         >
-        <div class="card w-100 h-100">
-            <img :src="getCategoryImage(category.c_id)" class="card-img-top" :alt="category.c_name">
-            <div class="card-body text-center">
-              <h5 class="card-title">{{ category.c_name }}</h5>
-              <p class="mb-0 text-muted small">Popular category</p>
+        <div class="card w-100 h-100 card-hover position-relative">
+            <div
+              v-if="product.discount"
+              class="badge bg-danger position-absolute"
+              style="top:10px; right:10px; z-index:10;"
+            >
+              {{ getDiscountPercent(product) }}% OFF
             </div>
+            <a href="#" @click="addRecentView(product)">
+              <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
+              <div class="card-body text-center">
+                <p class="mb-1 text-muted small">{{ product.category?.c_name || 'Popular category' }}</p>
+                <h5 class="card-title">{{ product.p_name }}</h5>
+                <p class="mb-0 fw-semibold">
+                  Rs {{ product.final_price }}
+                  <span v-if="product.discount" class="text-muted text-decoration-line-through ms-1">Rs {{ product.p_price }}</span>
+                </p>
+              </div>
+            </a>
           </div>
         </div>
-        <span v-if="!popularCategories.length" class="text-muted">No popular categories found.</span>
+        <span v-if="!popularCategoryProducts.length" class="text-muted">No products found in popular categories.</span>
       </div>
     </div>
   </section>
@@ -169,7 +182,7 @@ export default {
 
   setup() {
     const topDeals = ref([])
-    const popularCategories = ref([])
+    const popularCategoryProducts = ref([])
     const recentViews = ref([])
     const dealTags = ['Top Deals', 'New Arrival', 'Limited Offer']
 
@@ -221,25 +234,24 @@ export default {
       }
     }
 
-    const getPopularCategories = async () => {
+    const getPopularCategoryProducts = async () => {
       try {
-        const res = await axios.get('/api/categories-list')
-        popularCategories.value = (res.data || []).filter(category => category.is_popular)
-      } catch (e) {
-        console.error('Error loading categories', e)
+        const res = await axios.get('/api/popular-products')
+        popularCategoryProducts.value = normalizeProducts(res.data.products)      } catch (e) {
+        console.error('Error loading popular category products', e)
       }
     }
 
     onMounted(() => {
       getTopDeals()
-      getPopularCategories()
+      getPopularCategoryProducts()
       loadRecentViews()
     })
 
     return {
       topDeals,
       carouselDeals,
-      popularCategories,
+      getPopularCategoryProducts,
       recentViews,
       addRecentView,
       getDiscountPercent,
