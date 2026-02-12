@@ -116,7 +116,7 @@
   <section class="my-5">
     <div class="container">
       <div class="d-flex">
-        <div class="p-2 flex-grow-1"><h1>Popular Products</h1></div>
+        <div class="p-2 flex-grow-1"><h1>Popular </h1></div>
         <div class="p-2"><a href="#" class="text-decoration-none btn btn-success btn-sm">View all</a></div>
       </div>
 
