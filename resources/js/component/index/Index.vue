@@ -75,7 +75,7 @@
             </div>
 
             <a href="#">
-              <img :src="`/uploads/products/${product.p_image}`" class="card-img-top" :alt="product.p_name">
+              <img :src="$product.p_image" class="card-img-top" :alt="product.p_name">
               <div class="card-body d-flex flex-column text-dark">
                 <h5 class="card-title text-center">{{ product.p_name }}</h5>
                 <div class="text-center">
@@ -100,6 +100,7 @@
       </div>
 
       <div class="d-flex flex-wrap gap-2 mt-3">
+        <img :src="$product.p_image" alt="">
         <span
           v-for="category in popularCategories"
           :key="`cat-${category.c_id}`"

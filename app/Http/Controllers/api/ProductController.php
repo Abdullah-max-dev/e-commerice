@@ -109,8 +109,8 @@ class ProductController extends Controller
         }
 
         $product->load('discount', 'mainImage');
-        Product::where('p_id',$req->p_id)
-                ->update(['is_top_deal'=>1]);
+        Product::where('p_id',$product->p_id)
+                ->update(['is_top_deal'=> 1]);
 
 
         return response()->json([
@@ -210,10 +210,10 @@ class ProductController extends Controller
 
         // Discount
         if ($product->discount) {
-            if ($product->discount->discount_type === 'percentage') {
-                $product->final_price = $product->p_price - ($product->p_price * $product->discount->discount_value / 100);
+            if ($product->discount->type === 'percentage') {
+                $product->final_price = $product->p_price - ($product->p_price * $product->discount->value / 100);
             } else { // fixed
-                $product->final_price = $product->p_price - $product->discount->discount_value;
+                $product->final_price = $product->p_price - $product->discount->value;
             }
         } else {
             $product->final_price = $product->p_price;

@@ -1,5 +1,5 @@
 import axios from 'axios'
-function normalizeProductImage(product) {
+export function normalizeProductImage(product) {
     let img = ''
 
     if (product.main_image?.image) {
@@ -16,6 +16,17 @@ function normalizeProductImage(product) {
     }
 
     return img
+}
+export function normalizeProduct(product) {
+    return {
+        ...product,
+        p_image: normalizeProductImage(product),
+        final_price: product.final_price ?? product.p_price
+    }
+}
+
+export function normalizeProductList(products) {
+    return (products || []).map(normalizeProduct)
 }
 
 
@@ -225,7 +236,7 @@ export default {
             commit('CLEAR_STATUS')
 
             try {
-                await axios.post(
+                const res= await axios.post(
                     `/api/vender/products/${id}/discount`,
                     form,
                     {
@@ -256,20 +267,12 @@ export default {
 
     getters: {
         products: state =>
-            state.products.map(p => ({
-                ...p,
-                p_image: normalizeProductImage(p),
-                final_price: p.final_price ?? p.p_price
-            })),
+             normalizeProductList(state.products),
 
         currentProduct: state =>
             state.currentProduct
-                ? {
-                    ...state.currentProduct,
-                    p_image: normalizeProductImage(state.currentProduct),
-                    final_price: state.currentProduct.final_price ?? state.currentProduct.p_price
-                }
-                : null,
+                ?  normalizeProduct(state.currentProduct)
+                :null,
 
         topDeals: (state, getters) =>
             getters.products.filter(p => p.is_top_deal === 1),

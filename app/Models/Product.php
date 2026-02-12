@@ -39,10 +39,16 @@ class Product extends Model
                     ->where('is_main', 1);
     }
     public function discount(){
-        return $this->hasOne(Discount::class,'p_id','p_id')
-                    ->where('is_active',1)
-                    ->whereDate('starts_at','<=',now())
-                    ->whereDate('ends_at','>=',now());
+        return $this->hasOne(Discount::class, 'p_id', 'p_id')
+                    ->where('is_active', 1)
+                    ->where(function ($query) {
+                        $query->whereNull('starts_at')
+                              ->orWhereDate('starts_at', '<=', now());
+                    })
+                    ->where(function ($query) {
+                        $query->whereNull('ends_at')
+                              ->orWhereDate('ends_at', '>=', now());
+                    });
     }
     public function getFinalPriceAttribute()
     {
