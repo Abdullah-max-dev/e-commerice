@@ -10,6 +10,7 @@ Route::post('/user-signup', [AuthController::class, 'signup']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/categories-list', [CategoryController::class, 'index']);
 Route::get('/popular-products', [HomeController::class, 'popularProducts']);
+Route::get('/top-products', [HomeController::class, 'topDeals']);
 Route::post('/vender-signup', [AuthController::class, 'Vender_register']);
 
 

@@ -39,7 +39,7 @@ class Product extends Model
                     ->where('is_main', 1);
     }
     public function discount(){
-        return $this->hasone(Discount::class,'p_id','p_id')
+        return $this->hasOne(Discount::class,'p_id','p_id')
                     ->where('is_active',1)
                     ->whereDate('starts_at','<=',now())
                     ->whereDate('ends_at','>=',now());

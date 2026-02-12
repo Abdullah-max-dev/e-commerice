@@ -36,6 +36,7 @@
                             :src="`/uploads/products/${p.main_image.image}`"
                             class="product-thumb"
                             alt="Product Image"
+
                         />
 
                         <span class="fw-medium">{{ p.p_name }}</span>
@@ -174,8 +175,8 @@ export default {
 ================================ */
 
 .product-thumb {
-  width: 70px;
-  height: 70px;
+  width: 70px !important;
+  height: 70px !important;
   object-fit: cover;        /* shows proper crop */
   border-radius: 10px;
   background: #f8f9fa;

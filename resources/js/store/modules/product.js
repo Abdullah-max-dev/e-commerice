@@ -1,4 +1,23 @@
 import axios from 'axios'
+function normalizeProductImage(product) {
+    let img = ''
+
+    if (product.main_image?.image) {
+        img = product.main_image.image
+    } else if (product.p_image) {
+        img = product.p_image
+    } else {
+        img = 'default-product.png'
+    }
+
+    // prepend uploads only if needed
+    if (!img.startsWith('/') && !img.startsWith('http')) {
+        img = `/uploads/products/${img}`
+    }
+
+    return img
+}
+
 
 export default {
     namespaced: true,
@@ -215,7 +234,7 @@ export default {
                         }
                     }
                 )
-
+                commit('UPDATE_PRODUCT', res.data.product)
                 commit('SET_SUCCESS', 'Discount saved successfully ✅')
                 return true
 
@@ -236,9 +255,31 @@ export default {
     },
 
     getters: {
-        products: state => state.products,
-        currentProduct: state => state.currentProduct,
+        products: state =>
+            state.products.map(p => ({
+                ...p,
+                p_image: normalizeProductImage(p),
+                final_price: p.final_price ?? p.p_price
+            })),
+
+        currentProduct: state =>
+            state.currentProduct
+                ? {
+                    ...state.currentProduct,
+                    p_image: normalizeProductImage(state.currentProduct),
+                    final_price: state.currentProduct.final_price ?? state.currentProduct.p_price
+                }
+                : null,
+
+        topDeals: (state, getters) =>
+            getters.products.filter(p => p.is_top_deal === 1),
+
+        popularProducts: (state, getters) =>
+            getters.products.filter(p => p.is_popular === 1),
+
         error: state => state.error,
         success: state => state.success
     }
+
+
 }

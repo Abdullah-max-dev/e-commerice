@@ -20,6 +20,21 @@ class Discount extends Model
     {
         return $this->belongsTo(Product::class, 'p_id', 'p_id');
     }
+    protected static function booted()
+    {
+        static::created(function ($discount) {
+            $discount->product()->update([
+                'is_top_deal' => 1
+            ]);
+        });
+
+        static::deleted(function ($discount) {
+            $discount->product()->update([
+                'is_top_deal' => 0
+            ]);
+        });
+    }
+
 
 }
 

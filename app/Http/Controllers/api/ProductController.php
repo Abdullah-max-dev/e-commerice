@@ -109,6 +109,9 @@ class ProductController extends Controller
         }
 
         $product->load('discount', 'mainImage');
+        Product::where('id',$req->p_id)
+                ->update(['is_top_deal'=>1]);
+
 
         return response()->json([
             'success' => true,
