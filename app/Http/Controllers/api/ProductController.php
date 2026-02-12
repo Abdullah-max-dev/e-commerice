@@ -109,7 +109,7 @@ class ProductController extends Controller
         }
 
         $product->load('discount', 'mainImage');
-        Product::where('id',$req->p_id)
+        Product::where('p_id',$req->p_id)
                 ->update(['is_top_deal'=>1]);
 
 
