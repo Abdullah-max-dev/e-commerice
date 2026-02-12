@@ -66,8 +66,7 @@
             <a href="#" @click="addRecentView(product)">
               <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
               <div class="card-body d-flex flex-column text-dark">
-                <h5 class="card-title text-center">{{ product.p_name }}</h5>
-                 <p class="small text-muted mb-1">{{ product.discount ? 'Top deal' : 'New arrival' }}</p>
+                <h4 class="card-title text-center">{{ product.p_name }}</h4>
                 <div class="text-center">
                   <span v-if="product.discount" class="text-danger fw-bold me-2">Rs {{ product.final_price }}</span>
                   <span v-if="product.discount" class="text-muted text-decoration-line-through">Rs {{ product.p_price }}</span>
@@ -106,12 +105,11 @@
             <a href="#" @click="addRecentView(product)">
               <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
               <div class="card-body text-center">
-                <p class="mb-1 text-muted small">{{ product.category?.c_name || 'Popular category' }}</p>
-                <h5 class="card-title">{{ product.p_name }}</h5>
-                <p class="mb-0 fw-semibold">
+                <h4 class="card-title text-dark">{{ product.p_name }}</h4 >
+                <h5 class="mb-0 fw-semibold">
                   Rs {{ product.final_price }}
                   <span v-if="product.discount" class="text-muted text-decoration-line-through ms-1">Rs {{ product.p_price }}</span>
-                </p>
+                </h5>
               </div>
             </a>
           </div>
@@ -256,7 +254,8 @@ export default {
       addRecentView,
       getDiscountPercent,
       getDealTag,
-      getCategoryImage
+      getCategoryImage,
+      popularCategoryProducts
     }
   }
 }
@@ -276,7 +275,8 @@ section {
 .carousel-img {
   height: 55vh;
   width: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #f8f9fa;
 }
 
 .carousel-caption {
@@ -314,7 +314,8 @@ section {
 .card img {
   width: 100%;
   height: 220px;
-  object-fit: cover;
+  object-fit: contain;
+  background: #f8f9fa;
   display: block;
 }
 
