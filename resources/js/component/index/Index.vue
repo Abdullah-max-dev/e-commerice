@@ -1,47 +1,36 @@
 <template>
   <MainLayout />
 
-  <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+  <div id="productCarousel" class="carousel slide" data-bs-ride="carousel" v-if="carouselDeals.length">
     <div class="carousel-indicators">
-      <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="0" class="active"></button>
-      <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="1"></button>
-      <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="2"></button>
+       <button
+        v-for="(deal, index) in carouselDeals"
+        :key="`carousel-ind-${deal.p_id}`"
+        type="button"
+        data-bs-target="#productCarousel"
+        :data-bs-slide-to="index"
+        :class="{ active: index === 0 }"
+      ></button>
     </div>
 
     <div class="carousel-inner">
-      <div class="carousel-item active">
-        <img
-          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1920&q=80"
-          class="d-block w-100 carousel-img"
-          alt="Shoes"
-        >
-        <div class="carousel-caption d-none d-md-block">
-          <h2 class="fw-bold">Step Up Your Style</h2>
-          <p>Comfort & design that moves with you</p>
-        </div>
-      </div>
-
-      <div class="carousel-item">
-        <img
-          src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=1920&q=80"
-          class="d-block w-100 carousel-img"
-          alt="Fashion Products"
-        >
-        <div class="carousel-caption d-none d-md-block">
-          <h2 class="fw-bold">New Season Arrivals</h2>
-          <p>Check out all the new trends</p>
-        </div>
-      </div>
-
-      <div class="carousel-item">
-        <img
-          src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1920&q=80"
-          class="d-block w-100 carousel-img"
-          alt="Electronics"
-        >
-        <div class="carousel-caption d-none d-md-block">
-          <h2 class="fw-bold">Latest Arrival</h2>
-          <p>Smart gadgets for smart living</p>
+       <div
+        v-for="(deal, index) in carouselDeals"
+        :key="`carousel-${deal.p_id}`"
+        class="carousel-item"
+        :class="{ active: index === 0 }"
+      >
+        <img :src="deal.p_image" class="d-block w-100 carousel-img" :alt="deal.p_name">
+        <div class="carousel-caption">
+          <div v-if="deal.discount" class="badge bg-danger mb-2">
+            {{ getDiscountPercent(deal) }}% OFF
+          </div>
+          <h2 class="fw-bold mb-1">{{ deal.p_name }}</h2>
+          <p class="mb-1">{{ getDealTag(index) }}</p>
+          <p class="mb-0 fw-semibold">
+            Rs {{ deal.final_price }}
+            <span v-if="deal.discount" class="text-decoration-line-through text-light-emphasis ms-1">Rs {{ deal.p_price }}</span>
+          </p>
         </div>
       </div>
     </div>
@@ -71,13 +60,14 @@
               class="badge bg-danger position-absolute"
               style="top:10px; right:10px; z-index:10;"
             >
-              {{ Math.round(((product.p_price - product.final_price) / product.p_price) * 100) }}% OFF
+            {{ getDiscountPercent(product) }}% OFF
             </div>
 
-            <a href="#">
-              <img :src="$product.p_image" class="card-img-top" :alt="product.p_name">
+            <a href="#" @click="addRecentView(product)">
+              <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
               <div class="card-body d-flex flex-column text-dark">
                 <h5 class="card-title text-center">{{ product.p_name }}</h5>
+                 <p class="small text-muted mb-1">{{ product.discount ? 'Top deal' : 'New arrival' }}</p>
                 <div class="text-center">
                   <span v-if="product.discount" class="text-danger fw-bold me-2">Rs {{ product.final_price }}</span>
                   <span v-if="product.discount" class="text-muted text-decoration-line-through">Rs {{ product.p_price }}</span>
@@ -99,15 +89,20 @@
         <div class="p-2 flex-grow-1"><h1>Popular Categories</h1></div>
       </div>
 
-      <div class="d-flex flex-wrap gap-2 mt-3">
-        <img :src="$product.p_image" alt="">
-        <span
+      <div class="row row-cols-1 row-cols-md-4 g-2 mt-2">
+        <div
           v-for="category in popularCategories"
           :key="`cat-${category.c_id}`"
-          class="badge rounded-pill bg-primary px-3 py-2"
+          class="col d-flex"
         >
-          {{ category.c_name }}
-        </span>
+        <div class="card w-100 h-100">
+            <img :src="getCategoryImage(category.c_id)" class="card-img-top" :alt="category.c_name">
+            <div class="card-body text-center">
+              <h5 class="card-title">{{ category.c_name }}</h5>
+              <p class="mb-0 text-muted small">Popular category</p>
+            </div>
+          </div>
+        </div>
         <span v-if="!popularCategories.length" class="text-muted">No popular categories found.</span>
       </div>
     </div>
@@ -116,26 +111,26 @@
   <section class="my-5">
     <div class="container">
       <div class="d-flex">
-        <div class="p-2 flex-grow-1"><h1>Popular </h1></div>
+        <div class="p-2 flex-grow-1"><h1>Recent Views </h1></div>
         <div class="p-2"><a href="#" class="text-decoration-none btn btn-success btn-sm">View all</a></div>
       </div>
 
       <div class="row row-cols-1 row-cols-md-4 g-2">
-        <div class="col d-flex" v-for="product in popularProducts" :key="product.p_id">
+        <div class="col d-flex" v-for="product in recentViews" :key="`recent-${product.p_id}`">
           <div class="card w-100 h-100 card-hover position-relative">
             <div
               v-if="product.discount"
               class="badge bg-danger position-absolute"
               style="top:10px; right:10px; z-index:10;"
             >
-              {{ Math.round(((product.p_price - product.final_price) / product.p_price) * 100) }}% OFF
+            {{ getDiscountPercent(product) }}% OFF
             </div>
 
-            <a href="#">
-              <img :src="`/uploads/products/${product.p_image}`" class="card-img-top" :alt="product.p_name">
-              <div class="card-body d-flex flex-column text-dark">
-                <h5 class="card-title text-center">{{ product.p_name }}</h5>
 
+            <a href="#" @click="addRecentView(product)">
+              <img :src="product.p_image" class="card-img-top" :alt="product.p_name">              <div class="card-body d-flex flex-column text-dark">
+                <h5 class="card-title text-center">{{ product.p_name }}</h5>
+                 <p class="small text-muted mb-1">Recently viewed</p>
                 <div class="text-center">
                   <span v-if="product.discount" class="text-danger fw-bold me-2">Rs {{ product.final_price }}</span>
                   <span v-if="product.discount" class="text-muted text-decoration-line-through">Rs {{ product.p_price }}</span>
@@ -146,14 +141,26 @@
           </div>
         </div>
       </div>
+      <div v-if="!recentViews.length" class="text-muted">No recent views yet. Start exploring products.</div>
     </div>
+
   </section>
+  <footer class="site-footer mt-5">
+    <div class="container py-4">
+      <h5 class="mb-2">About Our Website</h5>
+      <p class="mb-0">
+        Welcome to our e-commerce website. Discover top deals, popular categories, and a personalized recent-view section
+        that helps you continue shopping from where you left off.
+      </p>
+    </div>
+  </footer>
+
 </template>
 
 <script>
 import MainLayout from './layouts/MainLayout.vue'
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 export default {
   components: {
@@ -161,26 +168,48 @@ export default {
   },
 
   setup() {
-    const popularProducts = ref([])
     const topDeals = ref([])
     const popularCategories = ref([])
+    const recentViews = ref([])
+    const dealTags = ['Top Deals', 'New Arrival', 'Limited Offer']
 
     const normalizeProducts = products => {
       return (products || []).map(product => ({
         ...product,
-        p_image: product.p_image || 'default-product.png',
+         p_image: product.p_image || '/default-product.png',
         discount: product.discount || false,
         final_price: product.final_price ?? product.p_price
       }))
     }
 
-    const getPopularProducts = async () => {
-      try {
-        const res = await axios.get('/api/popular-products')
-        popularProducts.value = normalizeProducts(res.data.products)
-      } catch (e) {
-        console.error('Error loading popular products', e)
-      }
+    const carouselDeals = computed(() => topDeals.value.slice(0, 3))
+
+    const getDiscountPercent = product => {
+      if (!product.discount || !product.p_price) return 0
+      return Math.round(((product.p_price - product.final_price) / product.p_price) * 100)
+    }
+
+    const getDealTag = index => dealTags[index % dealTags.length]
+
+    const saveRecentViews = () => {
+      localStorage.setItem('recentlyViewedProducts', JSON.stringify(recentViews.value))
+    }
+
+    const loadRecentViews = () => {
+      const stored = localStorage.getItem('recentlyViewedProducts')
+      recentViews.value = stored ? normalizeProducts(JSON.parse(stored)) : []
+    }
+
+    const addRecentView = product => {
+      const current = recentViews.value.filter(item => item.p_id !== product.p_id)
+      recentViews.value = [product, ...current].slice(0, 8)
+      saveRecentViews()
+    }
+
+    const getCategoryImage = categoryId => {
+      const fromTopDeals = topDeals.value.find(item => item.c_id === categoryId)
+      const fromRecent = recentViews.value.find(item => item.c_id === categoryId)
+      return (fromTopDeals || fromRecent)?.p_image || '/default-product.png'
     }
 
     const getTopDeals = async () => {
@@ -202,15 +231,20 @@ export default {
     }
 
     onMounted(() => {
-      getPopularProducts()
       getTopDeals()
       getPopularCategories()
+      loadRecentViews()
     })
 
     return {
-      popularProducts,
       topDeals,
-      popularCategories
+      carouselDeals,
+      popularCategories,
+      recentViews,
+      addRecentView,
+      getDiscountPercent,
+      getDealTag,
+      getCategoryImage
     }
   }
 }
@@ -234,9 +268,11 @@ section {
 }
 
 .carousel-caption {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.58);
   padding: 12px 16px;
   border-radius: 8px;
+   max-width: 460px;
+  text-align: left;
 }
 
 .carousel-caption h2 {
@@ -297,7 +333,10 @@ section {
   --bs-gutter-x: 0.5rem;
   --bs-gutter-y: 0.5rem;
 }
-
+.site-footer {
+  background: #111827;
+  color: #f3f4f6;
+}
 @media (max-width: 576px) {
   .card img {
     height: 180px;
