@@ -30,6 +30,26 @@
 
 
         </li>
+        <li class="nav-item">
+        <a
+          class="nav-link d-flex gap-2 text-light"
+          data-bs-toggle="collapse"
+          href="#productMenu"
+        >
+          <i class="fa-brands fa-shopify"></i>
+          Vender
+        </a>
+
+        <div class="collapse" id="productMenu">
+          <ul class="nav flex-column ms-4">
+            <li>
+              <router-link class="nav-link text-light" to="/admin/bussiness-type">
+                Bussiness Type
+              </router-link>
+            </li>
+          </ul>
+        </div>
+      </li>
 
 
     </ul>

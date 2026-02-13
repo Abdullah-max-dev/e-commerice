@@ -82,6 +82,12 @@ const routes = [
         path: '/admin/category', component: Category,
         meta: { requiresAuth: true, role: 'admin' }
         },
+        // add bussiness type
+        {
+        path: '//admin/bussiness-type', component: AddBussiness,
+        meta: { requiresAuth: true, role: 'admin' }
+        },
+
 
 ]
 
