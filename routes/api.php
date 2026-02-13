@@ -5,7 +5,6 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\HomeController;
-use App\Http\Controllers\Api\BussinessController;
 
 // Public routes
 Route::post('/user-signup', [AuthController::class, 'signup']);
@@ -33,7 +32,6 @@ Route::middleware(['auth:sanctum', 'vender'])->group(function () {
 // Admin routes
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('bussinesses', BussinessController::class);
     Route::patch('categories/{id}/toggle-top', [CategoryController::class, 'toggleTop']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
