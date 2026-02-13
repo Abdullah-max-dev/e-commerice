@@ -104,6 +104,8 @@
 
                     if (res.data.success) {
                     localStorage.setItem('token', res.data.data.token)
+                    localStorage.setItem('role', res.data.data.role)
+                    localStorage.setItem('verification_status', res.data.data.verification_status || 'unverified')
                     message.value = res.data.message
 
                     }

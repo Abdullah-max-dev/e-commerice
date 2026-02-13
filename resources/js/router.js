@@ -8,110 +8,59 @@ import Cart from './component/index/Cart.vue'
 
 import AdminPannel from './component/admin/AdminPannel.vue'
 import VenderPannel from './component/vender/VenderPannel.vue'
-import Store from './store';
 import venderSignup from './component/index/auth/vender/VenderSignup.vue'
 import AddProduct from './component/vender/AddProduct.vue'
 import Category from './component/admin/Category.vue'
 import ViewProduct from './component/vender/ViewProduct.vue'
 import EditProduct from './component/vender/EditProduct.vue'
 import ProductDiscount from './component/vender/ProductDiscount.vue'
-
+import VenderSettings from './component/vender/Settings.vue'
+import UserSettings from './component/user/Settings.vue'
 
 const routes = [
-    // login
-  { path: '/', component: Home },
 
-    {
-        path: '/user-login', component: UserLogin,
+   { path: '/user-login', component: UserLogin },
+  { path: '/vender-register', component: venderSignup },
+  { path: '/cart', component: Cart },
+  { path: '/user-signup', component: UserRegister },
 
-    },
-    //vender register
-    {
-        path: '/vender-register', component: venderSignup,
+  { path: '/user-panel', component: UserPannel, meta: { requiresAuth: true, role: 'user' } },
+  { path: '/user/settings', component: UserSettings, meta: { requiresAuth: true, role: 'user' } },
 
-    },
-    // cart
-    {
-        path: '/cart', component: Cart,
+  { path: '/vender-panel', component: VenderPannel, meta: { requiresAuth: true, role: 'vender' } },
+  { path: '/vender/settings', component: VenderSettings, meta: { requiresAuth: true, role: 'vender' } },
+  { path: '/vender/add-product', component: AddProduct, meta: { requiresAuth: true, role: 'vender', requiresVerified: true } },
+  { path: '/vender/view-product', component: ViewProduct, meta: { requiresAuth: true, role: 'vender' } },
+  { path: '/vender/products/:id/edit', component: EditProduct, meta: { requiresAuth: true, role: 'vender' } },
+  { path: '/vendor/products/:id/discount', component: ProductDiscount, meta: { requiresAuth: true, role: 'vender', requiresVerified: true } },
 
-    },
-    // user register
-    {
-        path: '/user-signup',
-        component: UserRegister,
-
-    },
-    // user panel
-    {
-        path: '/user-panel', component: UserPannel,
-       meta: { requiresAuth: true, role: 'user' }
-    },
-    // vender
-       //vender panel
-        {
-            path: '/vender-panel', component: VenderPannel,
-        meta: {requiresAuth: true, role: 'vender' }
-        },
-        // vender/ Add product
-        {
-            path: '/vender/add-product', component: AddProduct,
-        meta: {requiresAuth: true, role: 'vender' }
-        },
-        // vender / view product
-        {
-            path: '/vender/view-product', component: ViewProduct,
-            meta: {requiresAuth: true, role: 'vender' }
-        },
-        // vender / edit product
-        {
-            path: '/vender/products/:id/edit', component: EditProduct,
-            meta: {requiresAuth: true, role: 'vender' }
-        },
-        // discount
-        {
-            path: '/vendor/products/:id/discount', component: ProductDiscount,
-        meta: {requiresAuth: true, role: 'vender' }
-        },
-    //admin
-        // admin pannel
-        {
-            path: '/admin-panel', component: AdminPannel,
-        meta: { requiresAuth: true, role: 'admin' }
-        },
-        //category
-        {
-        path: '/admin/category', component: Category,
-        meta: { requiresAuth: true, role: 'admin' }
-        },
-
-
-
+  { path: '/admin-panel', component: AdminPannel, meta: { requiresAuth: true, role: 'admin' } },
+  { path: '/admin/category', component: Category, meta: { requiresAuth: true, role: 'admin' } },
 ]
 
-const router =  createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-
-
+})
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('token')
-    const role  = localStorage.getItem('role')
-
-    // 🔐 auth check
+    const role = localStorage.getItem('role')
+    const verificationStatus = localStorage.getItem('verification_status') || 'unverified'
     if (to.meta.requiresAuth && !token) {
         return next('/user-login')
-    }
-
-    // 🧑 role check
+  }
     if (to.meta.role && to.meta.role !== role) {
-        return next('/user-login')
-    }
+    return next('/user-login')
+  }
 
-    next()
+  if (to.meta.requiresVerified && verificationStatus !== 'verified') {
+    alert('Your account must be verified before using this feature. Please submit verification from settings.')
+    return next(role === 'vender' ? '/vender/settings' : '/user/settings')
+  }
+
+  next()
 })
 
 
 
-export default router;
+export default router

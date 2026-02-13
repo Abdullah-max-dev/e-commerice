@@ -1,35 +1,28 @@
 <template>
-
-
-
-     <VenderMain>
+  <UserMain>
     <div class="container mt-4">
-      <h4>Vendor Verification Settings</h4>
+      <h4>User Verification Settings</h4>
 
       <div class="alert mt-3" :class="statusClass">
         {{ statusMessage }}
       </div>
 
       <form class="card p-3 mt-3" @submit.prevent="submitVerification">
-        <h5>Business Verification Form</h5>
+        <h5>Profile Verification Form</h5>
         <div class="row mt-3">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Business Name</label>
-            <input v-model="form.business_name" type="text" class="form-control" />
+            <label class="form-label">Phone</label>
+            <input v-model="form.phone" type="text" class="form-control" />
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Business Type</label>
-            <input v-model="form.business_type" type="text" class="form-control" />
+            <label class="form-label">National ID</label>
+            <input v-model="form.national_id" type="text" class="form-control" />
           </div>
           <div class="col-md-12 mb-3">
-            <label class="form-label">Business Address</label>
-            <textarea v-model="form.business_address" class="form-control"></textarea>
+            <label class="form-label">Address</label>
+            <textarea v-model="form.address" class="form-control"></textarea>
           </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Tax / Registration ID</label>
-            <input v-model="form.tax_id" type="text" class="form-control" />
-          </div>
-          <div class="col-md-6 mb-3">
+          <div class="col-md-12 mb-3">
             <label class="form-label">Document URL</label>
             <input v-model="form.document_url" type="url" class="form-control" placeholder="https://..." />
           </div>
@@ -44,35 +37,33 @@
         <button class="btn btn-primary" type="submit">Submit For Verification</button>
       </form>
     </div>
-
- </VenderMain>
+  </UserMain>
 </template>
+
 <script>
 import axios from 'axios'
-import VenderMain from './layouts/VenderMain.vue'
+import UserMain from './layouts/UserMain.vue'
 import { computed, reactive, ref } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
-  components: { VenderMain },
+  components: { UserMain },
   setup() {
     const store = useStore()
     const errors = ref([])
     const form = reactive({
-      business_name: '',
-      business_type: '',
-      business_address: '',
-      tax_id: '',
+      phone: '',
+      national_id: '',
+      address: '',
       document_url: '',
     })
 
     const verificationStatus = computed(() => store.state.verification_status)
-
     const statusMessage = computed(() => {
       const map = {
-        unverified: 'Please complete your information to get verified.',
+        unverified: 'Please complete your profile to get verified.',
         pending: 'Your verification request is pending admin review.',
-        verified: 'Your account is verified. You now have full access.',
+        verified: 'Your account is verified.',
         rejected: 'Your verification was rejected. Please update details and re-submit.',
       }
       return map[verificationStatus.value] || map.unverified

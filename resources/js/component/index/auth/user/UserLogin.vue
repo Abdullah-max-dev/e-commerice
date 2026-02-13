@@ -87,6 +87,7 @@
 
                             localStorage.setItem('token', data.token)
                             localStorage.setItem('role', data.role)
+                            localStorage.setItem('verification_status', data.verification_status || 'unverified')
 
                             // ⚡ reactive
                             store.dispatch('setToken', data)

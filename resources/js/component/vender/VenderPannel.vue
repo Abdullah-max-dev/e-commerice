@@ -5,7 +5,7 @@
                 <div class="container-fluid px-4">
                     <h1 class="my-4">Dashboard</h1>
 
-                    <div class="row">
+                    <div :class="statusClass">{{ statusMessage }}</div> <div class="row">
                         <div class="col-xl-4 col-md-4 my-4">
                             <div class="card bg-secondary text-dark    ">
                                 <div class="card-body mx-auto my-4">
@@ -72,10 +72,31 @@
 </template>
 
 <script>
+    import { computed } from 'vue'
+    import { useStore } from 'vuex'
     import VenderMain from './layouts/VenderMain.vue';
     export default {
         components: {
             VenderMain
+        },
+        setup() {
+            const store = useStore()
+            const verificationStatus = computed(() => store.state.verification_status)
+            const statusMessage = computed(() => {
+                const map = {
+                    unverified: 'Please complete your information to get verified.',
+                    pending: 'Your verification request is pending admin review.',
+                    verified: 'Your account is verified.',
+                    rejected: 'Verification was rejected. Please update settings and resubmit.'
+                }
+                return map[verificationStatus.value] || map.unverified
+            })
+            const statusClass = computed(() => {
+                const map = { unverified: 'alert-warning', pending: 'alert-info', verified: 'alert-success', rejected: 'alert-danger' }
+                return `alert ${map[verificationStatus.value] || 'alert-warning'}`
+            })
+
+            return { statusMessage, statusClass }
         }
     }
 </script>

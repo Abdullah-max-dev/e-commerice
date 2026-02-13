@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Admin;
 use App\Http\Middleware\Vender;
+use App\Http\Middleware\VerifiedAccount;
+use Illuminate\Support\ServiceProvider;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -21,7 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-         $router = $this->app['router'];
-    $router->aliasMiddleware('vender', Vender::class);
+        $router = $this->app['router'];
+        $router->aliasMiddleware('vender', Vender::class);
+        $router->aliasMiddleware('admin', Admin::class);
+        $router->aliasMiddleware('verified.account', VerifiedAccount::class);
     }
 }

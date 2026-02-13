@@ -3,7 +3,7 @@
     <ul class="nav flex-column gap-2">
 
       <li class="nav-item">
-        <router-link to="/user" class="nav-link text-light">
+        <router-link to="/user-panel" class="nav-link text-light">
           <i class="fas fa-tachometer-alt me-2"></i>
           Dashboard
         </router-link>
@@ -17,7 +17,7 @@
       </li>
 
       <li class="nav-item">
-        <router-link to="/user/setting" class="nav-link text-light">
+        <router-link to="/user/settings" class="nav-link text-light">
           <i class="fa-solid fa-gear me-2"></i>
           Settings
         </router-link>

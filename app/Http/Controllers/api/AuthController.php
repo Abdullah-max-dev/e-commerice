@@ -1,107 +1,212 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
-
-
-use  App\Models\User;
+use App\Models\User;
 use Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function signup(Request $req){
-        $validation = Validator::make($req->all(),[
-            'name'=> 'required',
+    public function signup(Request $req)
+    {
+        $validation = Validator::make($req->all(), [
+            'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|confirmed|min:6',
         ]);
-        if($validation->fails()){
-            $response = [
-                'succes' =>false,
-                'message' => $validation->errors()
-            ];
-            return response()->json($response, 400);
-        }
-        $input = $req->all();
-        $input ['password'] = bcrypt($input['password']);
-        $user = User::create($input);
-        $success['token'] = $user->createToken('MyApp')->plainTextToken;
-        $success['name'] = $user->name;
-        $success['role'] = $user->role;
-        $response = [
-            'success' => true,
-            'data' => $success,
-            'message' => 'User register succesfully'
-        ];
-        return response()->json($response,200);
 
-    }
-    // login
-    public function login(Request $req){
-        $validate = Validator::make($req->all(),[
-            'email' => 'required|email',
-            'password' => 'required'
+        if ($validation->fails()) {
+            return response()->json([
+                'succes' => false,
+                'message' => $validation->errors(),
+            ], 400);
+        }
+
+        $user = User::create([
+            'name' => $req->name,
+            'email' => $req->email,
+            'password' => Hash::make($req->password),
+            'role' => 'user',
+            'verification_status' => 'unverified',
         ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->authPayload($user),
+            'message' => 'User register succesfully',
+        ], 200);
+    }
+
+    public function login(Request $req)
+    {
+        $validate = Validator::make($req->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
         if ($validate->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 422);
         }
-        if(Auth::attempt(['email'=>$req->email,'password'=>$req->password])){
-            $user = Auth::user();
-            $success['token'] = $user->createToken('MyApp')->plainTextToken;
-            $success['name'] = $user->name;
-            $success['role'] = $user->role;
-            $response = [
-                'success' => true,
-                'data' => $success,
-            ];
-            return response()->json($response,200);
-        }else{
-            $response = [
+
+        if (! Auth::attempt(['email' => $req->email, 'password' => $req->password])) {
+            return response()->json([
                 'success' => false,
-                'message' => 'email or password in correct'
-            ];
+                'message' => 'email or password in correct',
+            ]);
         }
-        return response()->json($response);
+
+        $user = Auth::user();
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->authPayload($user),
+        ], 200);
     }
-    // vender signup
-     public function Vender_register(Request $req){
-        $validation = Validator::make($req->all(),[
-            'name'=> 'required',
+
+    public function Vender_register(Request $req)
+    {
+        $validation = Validator::make($req->all(), [
+            'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|confirmed|min:6',
-            'role' => 'in:vender'
-
+            'role' => 'nullable|in:vender',
         ]);
-        if($validation->fails()){
-            $response = [
-                'succes' =>false,
-                'message' => $validation->errors()
-            ];
-            return response()->json($response, 400);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'succes' => false,
+                'message' => $validation->errors(),
+            ], 400);
         }
+
         $user = User::create([
             'name' => $req->name,
             'email' => $req->email,
             'password' => Hash::make($req->password),
             'role' => 'vender',
+            'verification_status' => 'unverified',
         ]);
-        $success['token'] = $user->createToken('MyApp')->plainTextToken;
-        $success['name'] = $user->name;
-        $success['role'] = $user->role;
-        $response = [
-            'success' => true,
-            'data' => $success,
-            'message' => 'User register succesfully'
-        ];
-        return response()->json($response,200);
 
+        return response()->json([
+            'success' => true,
+            'data' => $this->authPayload($user),
+            'message' => 'User register succesfully',
+        ], 200);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $request->user(),
+        ]);
+    }
+
+    public function submitVerification(Request $request)
+    {
+        $user = $request->user();
+        $rules = $user->role === 'vender'
+            ? [
+                'business_name' => 'required|string|max:255',
+                'business_type' => 'required|string|max:255',
+                'business_address' => 'required|string|max:1000',
+                'tax_id' => 'required|string|max:255',
+                'document_url' => 'required|url|max:1000',
+            ]
+            : [
+                'phone' => 'required|string|max:30',
+                'address' => 'required|string|max:1000',
+                'national_id' => 'required|string|max:255',
+                'document_url' => 'required|url|max:1000',
+            ];
+
+        $validation = Validator::make($request->all(), $rules);
+        if ($validation->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validation->errors(),
+            ], 422);
+        }
+
+        $user->update([
+            'verification_data' => $validation->validated(),
+            'verification_status' => 'pending',
+            'verification_note' => null,
+            'verification_submitted_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification submitted successfully.',
+            'data' => $user->fresh(),
+        ]);
+    }
+
+    public function listByRole(string $role)
+    {
+        $users = User::query()
+            ->where('role', $role)
+            ->select('id', 'name', 'email', 'role', 'verification_status', 'verification_note', 'verification_data', 'verification_submitted_at', 'verification_reviewed_at')
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $users,
+        ]);
+    }
+
+    public function updateVerificationStatus(Request $request, User $user)
+    {
+        $validation = Validator::make($request->all(), [
+            'verification_status' => 'required|in:verified,rejected',
+            'verification_note' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validation->errors(),
+            ], 422);
+        }
+
+        $user->update([
+            'verification_status' => $request->verification_status,
+            'verification_note' => $request->verification_note,
+            'verification_reviewed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification status updated.',
+            'data' => $user->fresh(),
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()?->currentAccessToken()?->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully.',
+        ]);
+    }
+
+    private function authPayload(User $user): array
+    {
+        return [
+            'token' => $user->createToken('MyApp')->plainTextToken,
+            'name' => $user->name,
+            'role' => $user->role,
+            'verification_status' => $user->verification_status,
+        ];
     }
 }
-

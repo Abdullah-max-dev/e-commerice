@@ -46,6 +46,12 @@
           </ul>
         </div>
       </li>
+       <li class="nav-item">
+        <router-link to="/vender/settings" class="nav-link text-light">
+          <i class="fa-solid fa-gear me-2"></i>
+          Settings
+        </router-link>
+      </li>
 
       <li class="nav-item mt-4">
         <router-link to="/" class="nav-link text-warning">
