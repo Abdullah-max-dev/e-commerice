@@ -15,6 +15,7 @@ import Category from './component/admin/Category.vue'
 import ViewProduct from './component/vender/ViewProduct.vue'
 import EditProduct from './component/vender/EditProduct.vue'
 import ProductDiscount from './component/vender/ProductDiscount.vue'
+import AddBussiness from './component/admin/AddBussiness.vue'
 
 const routes = [
     // login
@@ -84,7 +85,7 @@ const routes = [
         },
         // add bussiness type
         {
-        path: '//admin/bussiness-type', component: AddBussiness,
+        path: '/admin/bussiness-type', component: AddBussiness,
         meta: { requiresAuth: true, role: 'admin' }
         },
 

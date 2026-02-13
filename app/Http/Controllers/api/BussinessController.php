@@ -2,12 +2,16 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\Category;
+use App\Models\Bussiness;
 use App\Http\Controllers\Controller;
 
 
 class BussinessController extends Controller
 {
+     public function index()
+    {
+        return Bussiness::latest()->get();
+    }
 
     public function store(Request $request)
     {
@@ -23,7 +27,7 @@ class BussinessController extends Controller
     {
         $type = Bussiness::findOrFail($id);
         $data = $request->validate([
-            'bussiness_type' => 'required',
+           'bussiness_type' => 'required|unique:bussinesses,bussiness_type,' . $type->id,
 
         ]);
         $type->update($data);
@@ -35,9 +39,9 @@ class BussinessController extends Controller
         Bussiness::destroy($id);
         return response()->json(['success' => true]);
     }
-    public function show()
+    public function show($id)
     {
-        return Category::latest()->get();
+        return Bussiness::findOrFail($id);
     }
 
 }

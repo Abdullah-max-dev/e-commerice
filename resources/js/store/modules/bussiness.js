@@ -4,61 +4,51 @@ export default {
   namespaced: true,
 
   state: () => ({
-    type: []
+    types: []
   }),
 
   mutations: {
-    SET_type(state, type) {
-      state.type = type
+    SET_TYPES(state, types) {
+      state.types = types
     },
 
-    ADD_type(state, Bussiness) {
-      state.type.unshift(Bussiness)
+    ADD_TYPE(state, bussiness) {
+      state.types.unshift(bussiness)
     },
 
-    UPDATE_CATEGORY(state, updated) {
-      const index = state.categories.findIndex(
-        c => c.c_id === updated.c_id
-      )
-      if (index !== -1) state.categories[index] = updated
+    UPDATE_TYPE(state, updated) {
+      const index = state.types.findIndex(item => item.id === updated.id)
+      if (index !== -1) state.types[index] = updated
     },
 
-    DELETE_CATEGORY(state, c_id) {
-      state.categories = state.categories.filter(c => c.c_id !== c_id)
+     DELETE_TYPE(state, id) {
+      state.types = state.types.filter(item => item.id !== id)
     }
   },
 
   actions: {
-    async fetchCategories({ commit }) {
-      const res = await axios.get('/api/categories-list')
-      commit('SET_CATEGORIES', res.data)
+    async fetchTypes({ commit }) {
+      const res = await axios.get('/api/bussiness-type')
+      commit('SET_TYPES', res.data)
     },
 
-    async addCategory({ commit }, data) {
-      const res = await axios.post('/api/categories', data)
-      commit('ADD_CATEGORY', res.data)
+    async addType({ commit }, data) {
+      const res = await axios.post('/api/bussinesses', data)
+      commit('ADD_TYPE', res.data)
     },
 
-    async updateCategory({ commit }, payload) {
-      const res = await axios.put(
-        `/api/categories/${payload.c_id}`,
-        payload.data
-      )
-      commit('UPDATE_CATEGORY', res.data)
+    async updateType({ commit }, payload) {
+      const res = await axios.put(`/api/bussinesses/${payload.id}`, payload.data)
+      commit('UPDATE_TYPE', res.data)
     },
 
-    async deleteCategory({ commit }, c_id) {
-      await axios.delete(`/api/categories/${c_id}`)
-      commit('DELETE_CATEGORY', c_id)
-    },
-
-    async toggleTop({ dispatch }, c_id) {
-      await axios.patch(`/api/categories/${c_id}/toggle-top`)
-      dispatch('fetchCategories')
+    async deleteType({ commit }, id) {
+      await axios.delete(`/api/bussinesses/${id}`)
+      commit('DELETE_TYPE', id)
     }
   },
 
   getters: {
-    categories: state => state.categories
+    types: state => state.types
   }
 }

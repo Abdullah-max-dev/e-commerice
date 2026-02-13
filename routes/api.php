@@ -33,7 +33,7 @@ Route::middleware(['auth:sanctum', 'vender'])->group(function () {
 // Admin routes
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('BUssinesses', BussinessController::class);
+    Route::apiResource('bussinesses', BussinessController::class);
     Route::patch('categories/{id}/toggle-top', [CategoryController::class, 'toggleTop']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });

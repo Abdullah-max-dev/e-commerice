@@ -1,11 +1,13 @@
 import { createStore } from 'vuex'
 import category from './modules/category'
 import product from './modules/product'
+import bussiness from './modules/bussiness'
 
 const Store = createStore({
     modules: {
         category,
-        product
+        product,
+        bussiness
     },
     state() {
         return {
