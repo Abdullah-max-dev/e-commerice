@@ -140,6 +140,7 @@ class AuthController extends Controller
             'verification_status' => 'pending',
             'verification_note' => null,
             'verification_submitted_at' => now(),
+             'verification_reviewed_at' => null,
         ]);
 
         return response()->json([
@@ -179,7 +180,7 @@ class AuthController extends Controller
 
         $user->update([
             'verification_status' => $request->verification_status,
-            'verification_note' => $request->verification_note,
+            'verification_note' => $request->verification_status === 'rejected' ? $request->verification_note : null,
             'verification_reviewed_at' => now(),
         ]);
 

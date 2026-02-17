@@ -15,7 +15,7 @@
     <ul class="nav flex-column gap-2">
 
       <li class="nav-item">
-        <router-link to="/user" class="nav-link text-light">
+        <router-link to="/admin-panel" class="nav-link text-light">
           <i class="fas fa-tachometer-alt me-2"></i>
           Dashboard
         </router-link>
@@ -30,6 +30,12 @@
 
 
         </li>
+        <li class="nav-item">
+        <router-link to="/admin/verification" class="nav-link text-light">
+          <i class="fa-solid fa-layer-group"></i>
+          Verifications
+        </router-link>
+      </li>
         <li class="nav-item">
         <a
           class="nav-link d-flex gap-2 text-light"

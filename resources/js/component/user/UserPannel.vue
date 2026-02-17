@@ -2,7 +2,7 @@
   <UserMain>
     <div class="container-fluid px-4">
       <h1 class="my-4">Dashboard</h1>
-         <div :class="statusClass">{{ statusMessage }}</div>
+         <div v-if="showVerificationPrompt" :class="statusClass">{{ statusMessage }}</div>
       <div class="row">
         <div class="col-xl-4 col-md-4 my-4">
           <div class="card bg-info text-white mb-4">
@@ -54,7 +54,8 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import axios from 'axios'
+import { computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import UserMain from './layouts/UserMain.vue'
 
@@ -79,7 +80,20 @@ export default {
       return `alert ${map[verificationStatus.value] || 'alert-warning'}`
     })
 
-    return { statusMessage, statusClass }
+    const showVerificationPrompt = computed(() => verificationStatus.value !== 'verified')
+
+    const syncVerificationStatus = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      const res = await axios.get('/api/me', { headers: { Authorization: `Bearer ${token}` } })
+      store.dispatch('setVerificationStatus', res.data.data.verification_status || 'unverified')
+    }
+
+    onMounted(() => {
+      syncVerificationStatus()
+    })
+
+    return { statusMessage, statusClass, showVerificationPrompt }
   }
 }
 

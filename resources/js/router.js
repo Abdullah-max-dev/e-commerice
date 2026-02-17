@@ -16,9 +16,10 @@ import EditProduct from './component/vender/EditProduct.vue'
 import ProductDiscount from './component/vender/ProductDiscount.vue'
 import VenderSettings from './component/vender/Settings.vue'
 import UserSettings from './component/user/Settings.vue'
+import Verification from './component/admin/Verification.vue'
 
 const routes = [
-
+    { path: '/', component: Home },
    { path: '/user-login', component: UserLogin },
   { path: '/vender-register', component: venderSignup },
   { path: '/cart', component: Cart },
@@ -36,6 +37,7 @@ const routes = [
 
   { path: '/admin-panel', component: AdminPannel, meta: { requiresAuth: true, role: 'admin' } },
   { path: '/admin/category', component: Category, meta: { requiresAuth: true, role: 'admin' } },
+   { path: '/admin/verification', component: Verification, meta: { requiresAuth: true, role: 'admin' } },
 ]
 
 const router = createRouter({
