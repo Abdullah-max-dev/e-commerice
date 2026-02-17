@@ -126,7 +126,7 @@ export default {
             }
         },
 
-        async fetchVendorProducts({ commit, rootState }) {
+        async fetchVenderProducts({ commit, rootState }) {
             try {
                 const res = await axios.get('/api/vender/products', {
                     headers: {

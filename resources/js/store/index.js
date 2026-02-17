@@ -3,6 +3,7 @@ import category from './modules/category'
 import product from './modules/product'
 
 
+
 const Store = createStore({
     modules: {
         category,
@@ -57,7 +58,7 @@ const Store = createStore({
     getters: {
         isAdmin:  state => state.role === 'admin',
         isUser:   state => state.role === 'user',
-        isVendor: state => state.role === 'vender',
+        isVender: state => state.role === 'vender',
         isLoggedIn: state => !!state.token,
         isVerified: state => state.verification_status === 'verified'
     }

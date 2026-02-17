@@ -4,7 +4,7 @@
 
      <VenderMain>
     <div class="container mt-4">
-      <h4>Vendor Verification Settings</h4>
+      <h4>Vender Verification Settings</h4>
 
       <div class="alert mt-3" :class="statusClass">
         {{ statusMessage }}

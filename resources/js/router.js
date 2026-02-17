@@ -17,9 +17,11 @@ import ProductDiscount from './component/vender/ProductDiscount.vue'
 import VenderSettings from './component/vender/Settings.vue'
 import UserSettings from './component/user/Settings.vue'
 import Verification from './component/admin/Verification.vue'
+import ProductDetail from './component/index/ProductDetail.vue'
 
 const routes = [
     { path: '/', component: Home },
+    { path: '/product/:id', component: ProductDetail },
    { path: '/user-login', component: UserLogin },
   { path: '/vender-register', component: venderSignup },
   { path: '/cart', component: Cart },
@@ -33,7 +35,7 @@ const routes = [
   { path: '/vender/add-product', component: AddProduct, meta: { requiresAuth: true, role: 'vender', requiresVerified: true } },
   { path: '/vender/view-product', component: ViewProduct, meta: { requiresAuth: true, role: 'vender' } },
   { path: '/vender/products/:id/edit', component: EditProduct, meta: { requiresAuth: true, role: 'vender' } },
-  { path: '/vendor/products/:id/discount', component: ProductDiscount, meta: { requiresAuth: true, role: 'vender', requiresVerified: true } },
+  { path: '/vender/products/:id/discount', component: ProductDiscount, meta: { requiresAuth: true, role: 'vender', requiresVerified: true } },
 
   { path: '/admin-panel', component: AdminPannel, meta: { requiresAuth: true, role: 'admin' } },
   { path: '/admin/category', component: Category, meta: { requiresAuth: true, role: 'admin' } },

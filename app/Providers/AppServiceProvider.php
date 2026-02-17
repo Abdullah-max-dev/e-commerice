@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Admin;
+use App\Http\Middleware\Admin;
 use App\Http\Middleware\Vender;
 use App\Http\Middleware\VerifiedAccount;
 use Illuminate\Support\ServiceProvider;

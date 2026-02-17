@@ -63,7 +63,7 @@
                         {{ getDiscountPercent(product) }}% OFF
                         </div>
 
-                        <a href="#" @click="addRecentView(product)">
+                        <RouterLink :to="/product/:id" @click="addRecentView(product)">
                         <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
                         <div class="card-body d-flex flex-column text-dark">
                             <h4 class="card-title text-center">{{ product.p_name }}</h4>
@@ -73,7 +73,7 @@
                             <span v-else class="fw-bold">Rs {{ product.p_price }}</span>
                             </div>
                         </div>
-                        </a>
+                        </RouterLink>
                     </div>
                     </div>
 

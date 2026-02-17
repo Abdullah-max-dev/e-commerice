@@ -39,7 +39,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('categories', CategoryController::class);
     Route::patch('categories/{id}/toggle-top', [CategoryController::class, 'toggleTop']);
     Route::get('/admin/users', fn () => app(AuthController::class)->listByRole('user'));
-    Route::get('/admin/vendors', fn () => app(AuthController::class)->listByRole('vender'));
+    Route::get('/admin/venders', fn () => app(AuthController::class)->listByRole('vender'));
     Route::patch('/admin/users/{user}/verification', [AuthController::class, 'updateVerificationStatus']);
-    Route::patch('/admin/vendors/{user}/verification', [AuthController::class, 'updateVerificationStatus']);
+    Route::patch('/admin/venders/{user}/verification', [AuthController::class, 'updateVerificationStatus']);
 });

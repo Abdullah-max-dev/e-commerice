@@ -152,8 +152,13 @@ class AuthController extends Controller
 
     public function listByRole(string $role)
     {
+        $normalizedRole = $role === 'venders' ? 'vender' : $role;
         $users = User::query()
-            ->where('role', $role)
+            ->when($normalizedRole === 'vender', function ($query) {
+                $query->whereIn('role', ['vender', 'vender']);
+            }, function ($query) use ($normalizedRole) {
+                $query->where('role', $normalizedRole);
+            })
             ->select('id', 'name', 'email', 'role', 'verification_status', 'verification_note', 'verification_data', 'verification_submitted_at', 'verification_reviewed_at')
             ->orderByDesc('id')
             ->get();

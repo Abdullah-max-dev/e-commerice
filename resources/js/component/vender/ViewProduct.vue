@@ -66,7 +66,7 @@
                      <td>
                         <router-link
                             class="btn btn-outline-primary btn-sm"
-                            :to="`/vendor/products/${p.p_id}/discount`"
+                            :to="`/vender/products/${p.p_id}/discount`"
                         >
                             discount
                         </router-link>
@@ -138,7 +138,7 @@ export default {
     )
 
     onMounted(() => {
-      store.dispatch('product/fetchVendorProducts')
+      store.dispatch('product/fetchVenderProducts')
     })
 
     const deleteItem = (id) => {

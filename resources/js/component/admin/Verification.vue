@@ -3,7 +3,7 @@
     <div id="layoutSidenav_content">
       <main class="container-fluid px-4">
         <h1 class="mt-4">Admin Dashboard</h1>
-        <p class="text-muted">Users & Vendors Management</p>
+        <p class="text-muted">Users & Venders Management</p>
 
         <div class="row g-4 mt-3">
           <div class="col-xl-6 col-md-6">
@@ -17,8 +17,8 @@
           <div class="col-xl-6 col-md-6">
             <div class="card bg-success text-white shadow">
               <div class="card-body text-center">
-                <h6>Total Vendors</h6>
-                <h2>{{ vendors.length }}</h2>
+                <h6>Total Venders</h6>
+                <h2>{{ venders.length }}</h2>
               </div>
             </div>
           </div>
@@ -30,7 +30,7 @@
             <div class="d-flex align-items-center gap-3">
               <div class="btn-group" role="group" aria-label="verification type">
                 <button class="btn btn-sm" :class="activeType === 'users' ? 'btn-primary' : 'btn-outline-primary'" @click="activeType = 'users'">Users</button>
-                <button class="btn btn-sm" :class="activeType === 'vendors' ? 'btn-primary' : 'btn-outline-primary'" @click="activeType = 'vendors'">Vendors</button>
+                <button class="btn btn-sm" :class="activeType === 'venders' ? 'btn-primary' : 'btn-outline-primary'" @click="activeType = 'venders'">Venders</button>
               </div>
               <div class="form-check m-0">
                 <input id="pendingOnly" v-model="pendingOnly" class="form-check-input" type="checkbox">
@@ -90,21 +90,21 @@ export default {
   components: { AdminMainLayout },
   setup() {
     const users = ref([])
-    const vendors = ref([])
+    const venders = ref([])
     const activeType = ref('users')
-    const pendingOnly = ref(true)
+    const pendingOnly = ref(false)
 
     const authHeader = () => ({
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
     })
 
     const fetchData = async () => {
-      const [usersRes, vendorRes] = await Promise.all([
+      const [usersRes, venderRes] = await Promise.allSettled([
         axios.get('/api/admin/users', authHeader()),
-        axios.get('/api/admin/vendors', authHeader())
+        axios.get('/api/admin/venders', authHeader())
       ])
-      users.value = usersRes.data.data
-      vendors.value = vendorRes.data.data
+      users.value = usersRes.status === 'fulfilled' ? (usersRes.value.data?.data || []) : []
+      venders.value = venderRes.status === 'fulfilled' ? (venderRes.value.data?.data || []) : []
     }
 
     const updateStatus = async (type, id, status) => {
@@ -132,7 +132,7 @@ export default {
     }
 
     const filteredRecords = computed(() => {
-      const source = activeType.value === 'users' ? users.value : vendors.value
+      const source = activeType.value === 'users' ? users.value : venders.value
       return pendingOnly.value ? source.filter(item => item.verification_status === 'pending') : source
     })
 
@@ -140,7 +140,7 @@ export default {
       fetchData()
     })
 
-    return { users, vendors, activeType, pendingOnly, filteredRecords, updateStatus, statusBadgeClass, formatDetails, formatDate }
+    return { users, venders, activeType, pendingOnly, filteredRecords, updateStatus, statusBadgeClass, formatDetails, formatDate }
   }
 }
 </script>
