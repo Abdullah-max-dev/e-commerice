@@ -18,16 +18,16 @@
             <input v-model="form.business_name" type="text" class="form-control" />
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Business Type</label>
-            <input v-model="form.business_type" type="text" class="form-control" />
+            <label class="form-label">national_id</label>
+            <input v-model="form.national_id" type="text" class="form-control" />
           </div>
           <div class="col-md-12 mb-3">
             <label class="form-label">Business Address</label>
             <textarea v-model="form.business_address" class="form-control"></textarea>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Tax / Registration ID</label>
-            <input v-model="form.tax_id" type="text" class="form-control" />
+            <label class="form-label">phone</label>
+            <input v-model="form.phone" type="text" class="form-control" />
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Document URL</label>
@@ -60,9 +60,9 @@ export default {
     const errors = ref([])
     const form = reactive({
       business_name: '',
-      business_type: '',
+      national_id: '',
       business_address: '',
-      tax_id: '',
+      phone: '',
       document_url: '',
     })
 

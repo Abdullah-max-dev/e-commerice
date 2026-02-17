@@ -1,171 +1,164 @@
 <template>
-  <MainLayout />
-
-  <div id="productCarousel" class="carousel slide" data-bs-ride="carousel" v-if="carouselDeals.length">
-    <div class="carousel-indicators">
-       <button
-        v-for="(deal, index) in carouselDeals"
-        :key="`carousel-ind-${deal.p_id}`"
-        type="button"
-        data-bs-target="#productCarousel"
-        :data-bs-slide-to="index"
-        :class="{ active: index === 0 }"
-      ></button>
-    </div>
-
-    <div class="carousel-inner">
-       <div
-        v-for="(deal, index) in carouselDeals"
-        :key="`carousel-${deal.p_id}`"
-        class="carousel-item"
-        :class="{ active: index === 0 }"
-      >
-        <img :src="deal.p_image" class="d-block w-100 carousel-img" :alt="deal.p_name">
-        <div class="carousel-caption">
-          <div v-if="deal.discount" class="badge bg-danger mb-2">
-            {{ getDiscountPercent(deal) }}% OFF
-          </div>
-          <h2 class="fw-bold mb-1">{{ deal.p_name }}</h2>
-          <p class="mb-1">{{ getDealTag(index) }}</p>
-          <p class="mb-0 fw-semibold">
-            Rs {{ deal.final_price }}
-            <span v-if="deal.discount" class="text-decoration-line-through text-light-emphasis ms-1">Rs {{ deal.p_price }}</span>
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
-  </div>
-
-  <section class="my-5">
-    <div class="container">
-      <div class="d-flex">
-        <div class="p-2 flex-grow-1"><h1>Top Deals</h1></div>
-        <div class="p-2"><a href="#" class="text-decoration-none btn btn-success btn-sm">View all</a></div>
-      </div>
-
-      <div class="row row-cols-1 row-cols-md-4 g-2">
-        <div class="col d-flex" v-for="product in topDeals" :key="`top-${product.p_id}`">
-          <div class="card w-100 h-100 card-hover position-relative">
-            <div
-              v-if="product.discount"
-              class="badge bg-danger position-absolute"
-              style="top:10px; right:10px; z-index:10;"
-            >
-            {{ getDiscountPercent(product) }}% OFF
-            </div>
-
-            <a href="#" @click="addRecentView(product)">
-              <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
-              <div class="card-body d-flex flex-column text-dark">
-                <h4 class="card-title text-center">{{ product.p_name }}</h4>
-                <div class="text-center">
-                  <span v-if="product.discount" class="text-danger fw-bold me-2">Rs {{ product.final_price }}</span>
-                  <span v-if="product.discount" class="text-muted text-decoration-line-through">Rs {{ product.p_price }}</span>
-                  <span v-else class="fw-bold">Rs {{ product.p_price }}</span>
+    <MainLayout >
+    <div>
+            <div id="productCarousel" class="carousel slide" data-bs-ride="carousel" v-if="carouselDeals.length">
+                <div class="carousel-indicators">
+                <button
+                    v-for="(deal, index) in carouselDeals"
+                    :key="`carousel-ind-${deal.p_id}`"
+                    type="button"
+                    data-bs-target="#productCarousel"
+                    :data-bs-slide-to="index"
+                    :class="{ active: index === 0 }"
+                ></button>
                 </div>
-              </div>
-            </a>
-          </div>
-        </div>
 
-        <div v-if="!topDeals.length" class="text-muted">No top deals available right now.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="my-5">
-    <div class="container">
-      <div class="d-flex">
-        <div class="p-2 flex-grow-1"><h1>Popular Categories</h1></div>
-      </div>
-
-      <div class="row row-cols-1 row-cols-md-4 g-2 mt-2">
-        <div
-          v-for="product in popularCategoryProducts"
-          :key="`popular-cat-product-${product.p_id}`"
-          class="col d-flex"
-        >
-        <div class="card w-100 h-100 card-hover position-relative">
-            <div
-              v-if="product.discount"
-              class="badge bg-danger position-absolute"
-              style="top:10px; right:10px; z-index:10;"
-            >
-              {{ getDiscountPercent(product) }}% OFF
-            </div>
-            <a href="#" @click="addRecentView(product)">
-              <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
-              <div class="card-body text-center">
-                <h4 class="card-title text-dark">{{ product.p_name }}</h4 >
-                <h5 class="mb-0 fw-semibold">
-                  Rs {{ product.final_price }}
-                  <span v-if="product.discount" class="text-muted text-decoration-line-through ms-1">Rs {{ product.p_price }}</span>
-                </h5>
-              </div>
-            </a>
-          </div>
-        </div>
-        <span v-if="!popularCategoryProducts.length" class="text-muted">No products found in popular categories.</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="my-5">
-    <div class="container">
-      <div class="d-flex">
-        <div class="p-2 flex-grow-1"><h1>Recent Views </h1></div>
-        <div class="p-2"><a href="#" class="text-decoration-none btn btn-success btn-sm">View all</a></div>
-      </div>
-
-      <div class="row row-cols-1 row-cols-md-4 g-2">
-        <div class="col d-flex" v-for="product in recentViews" :key="`recent-${product.p_id}`">
-          <div class="card w-100 h-100 card-hover position-relative">
-            <div
-              v-if="product.discount"
-              class="badge bg-danger position-absolute"
-              style="top:10px; right:10px; z-index:10;"
-            >
-            {{ getDiscountPercent(product) }}% OFF
-            </div>
-
-
-            <a href="#" @click="addRecentView(product)">
-              <img :src="product.p_image" class="card-img-top" :alt="product.p_name">              <div class="card-body d-flex flex-column text-dark">
-                <h5 class="card-title text-center">{{ product.p_name }}</h5>
-                 <p class="small text-muted mb-1">Recently viewed</p>
-                <div class="text-center">
-                  <span v-if="product.discount" class="text-danger fw-bold me-2">Rs {{ product.final_price }}</span>
-                  <span v-if="product.discount" class="text-muted text-decoration-line-through">Rs {{ product.p_price }}</span>
-                  <span v-else class="fw-bold">Rs {{ product.p_price }}</span>
+                <div class="carousel-inner">
+                <div
+                    v-for="(deal, index) in carouselDeals"
+                    :key="`carousel-${deal.p_id}`"
+                    class="carousel-item"
+                    :class="{ active: index === 0 }"
+                >
+                    <img :src="deal.p_image" class="d-block w-100 carousel-img" :alt="deal.p_name">
+                    <div class="carousel-caption">
+                    <div v-if="deal.discount" class="badge bg-danger mb-2">
+                        {{ getDiscountPercent(deal) }}% OFF
+                    </div>
+                    <h2 class="fw-bold mb-1">{{ deal.p_name }}</h2>
+                    <p class="mb-1">{{ getDealTag(index) }}</p>
+                    <p class="mb-0 fw-semibold">
+                        Rs {{ deal.final_price }}
+                        <span v-if="deal.discount" class="text-decoration-line-through text-light-emphasis ms-1">Rs {{ deal.p_price }}</span>
+                    </p>
+                    </div>
                 </div>
-              </div>
-            </a>
-          </div>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+                <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+                <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <section class="my-5">
+                <div class="container">
+                <div class="d-flex">
+                    <div class="p-2 flex-grow-1"><h1>Top Deals</h1></div>
+                    <div class="p-2"><a href="#" class="text-decoration-none btn btn-success btn-sm">View all</a></div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-4 g-2">
+                    <div class="col d-flex" v-for="product in topDeals" :key="`top-${product.p_id}`">
+                    <div class="card w-100 h-100 card-hover position-relative">
+                        <div
+                        v-if="product.discount"
+                        class="badge bg-danger position-absolute"
+                        style="top:10px; right:10px; z-index:10;"
+                        >
+                        {{ getDiscountPercent(product) }}% OFF
+                        </div>
+
+                        <a href="#" @click="addRecentView(product)">
+                        <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
+                        <div class="card-body d-flex flex-column text-dark">
+                            <h4 class="card-title text-center">{{ product.p_name }}</h4>
+                            <div class="text-center">
+                            <span v-if="product.discount" class="text-danger fw-bold me-2">Rs {{ product.final_price }}</span>
+                            <span v-if="product.discount" class="text-muted text-decoration-line-through">Rs {{ product.p_price }}</span>
+                            <span v-else class="fw-bold">Rs {{ product.p_price }}</span>
+                            </div>
+                        </div>
+                        </a>
+                    </div>
+                    </div>
+
+                    <div v-if="!topDeals.length" class="text-muted">No top deals available right now.</div>
+                </div>
+                </div>
+            </section>
+
+            <section class="my-5">
+                <div class="container">
+                <div class="d-flex">
+                    <div class="p-2 flex-grow-1"><h1>Popular Categories</h1></div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-4 g-2 mt-2">
+                    <div
+                    v-for="product in popularCategoryProducts"
+                    :key="`popular-cat-product-${product.p_id}`"
+                    class="col d-flex"
+                    >
+                    <div class="card w-100 h-100 card-hover position-relative">
+                        <div
+                        v-if="product.discount"
+                        class="badge bg-danger position-absolute"
+                        style="top:10px; right:10px; z-index:10;"
+                        >
+                        {{ getDiscountPercent(product) }}% OFF
+                        </div>
+                        <a href="#" @click="addRecentView(product)">
+                        <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
+                        <div class="card-body text-center">
+                            <h4 class="card-title text-dark">{{ product.p_name }}</h4 >
+                            <h5 class="mb-0 fw-semibold">
+                            Rs {{ product.final_price }}
+                            <span v-if="product.discount" class="text-muted text-decoration-line-through ms-1">Rs {{ product.p_price }}</span>
+                            </h5>
+                        </div>
+                        </a>
+                    </div>
+                    </div>
+                    <span v-if="!popularCategoryProducts.length" class="text-muted">No products found in popular categories.</span>
+                </div>
+                </div>
+            </section>
+
+            <section class="my-5">
+                <div class="container">
+                <div class="d-flex">
+                    <div class="p-2 flex-grow-1"><h1>Recent Views </h1></div>
+                    <div class="p-2"><a href="#" class="text-decoration-none btn btn-success btn-sm">View all</a></div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-4 g-2">
+                    <div class="col d-flex" v-for="product in recentViews" :key="`recent-${product.p_id}`">
+                    <div class="card w-100 h-100 card-hover position-relative">
+                        <div
+                        v-if="product.discount"
+                        class="badge bg-danger position-absolute"
+                        style="top:10px; right:10px; z-index:10;"
+                        >
+                        {{ getDiscountPercent(product) }}% OFF
+                        </div>
+
+
+                        <a href="#" @click="addRecentView(product)">
+                        <img :src="product.p_image" class="card-img-top" :alt="product.p_name">              <div class="card-body d-flex flex-column text-dark">
+                            <h5 class="card-title text-center">{{ product.p_name }}</h5>
+                            <p class="small text-muted mb-1">Recently viewed</p>
+                            <div class="text-center">
+                            <span v-if="product.discount" class="text-danger fw-bold me-2">Rs {{ product.final_price }}</span>
+                            <span v-if="product.discount" class="text-muted text-decoration-line-through">Rs {{ product.p_price }}</span>
+                            <span v-else class="fw-bold">Rs {{ product.p_price }}</span>
+                            </div>
+                        </div>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+                <div v-if="!recentViews.length" class="text-muted">No recent views yet. Start exploring products.</div>
+                </div>
+
+            </section>
+            
         </div>
-      </div>
-      <div v-if="!recentViews.length" class="text-muted">No recent views yet. Start exploring products.</div>
-    </div>
-
-  </section>
-  <footer class="site-footer mt-5">
-    <div class="container py-4">
-      <h5 class="mb-2">About Our Website</h5>
-      <p class="mb-0">
-        Welcome to our e-commerce website. Discover top deals, popular categories, and a personalized recent-view section
-        that helps you continue shopping from where you left off.
-      </p>
-    </div>
-  </footer>
-
+    </MainLayout>
 </template>
 
 <script>
