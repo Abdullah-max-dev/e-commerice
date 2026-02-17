@@ -22,6 +22,32 @@ class HomeController extends Controller
             'products' => $products
         ]);
     }
+     public function productDetail($id)
+    {
+        $product = Product::with(['category', 'discount', 'mainImage'])
+            ->findOrFail($id);
+
+        return response()->json([
+            'product' => $this->formatProductImage($product)
+        ]);
+    }
+
+    public function relatedProducts($id)
+    {
+        $product = Product::findOrFail($id);
+
+        $products = Product::with(['category', 'discount', 'mainImage'])
+            ->where('c_id', $product->c_id)
+            ->where('p_id', '!=', $product->p_id)
+            ->latest()
+            ->take(4)
+            ->get()
+            ->map(fn ($relatedProduct) => $this->formatProductImage($relatedProduct));
+
+        return response()->json([
+            'products' => $products
+        ]);
+    }
 
     public function topDeals()
     {
@@ -41,6 +67,11 @@ class HomeController extends Controller
         $product->p_image = $product->mainImage
             ? '/uploads/products/' . $product->mainImage->image
             : '/default-product.png';
+            if ($product->relationLoaded('images')) {
+            $product->gallery_images = $product->images->map(function ($image) {
+                return '/uploads/products/' . $image->image;
+            })->values();
+        }
 
         return $product;
     }

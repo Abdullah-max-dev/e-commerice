@@ -63,7 +63,7 @@
                         {{ getDiscountPercent(product) }}% OFF
                         </div>
 
-                        <RouterLink :to="/product/:id" @click="addRecentView(product)">
+                        <RouterLink :to="`/product/${product.p_id}`" @click="addRecentView(product)">
                         <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
                         <div class="card-body d-flex flex-column text-dark">
                             <h4 class="card-title text-center">{{ product.p_name }}</h4>
@@ -102,7 +102,7 @@
                         >
                         {{ getDiscountPercent(product) }}% OFF
                         </div>
-                        <a href="#" @click="addRecentView(product)">
+                        <RouterLink :to="`/product/${product.p_id}`" @click="addRecentView(product)">
                         <img :src="product.p_image" class="card-img-top" :alt="product.p_name">
                         <div class="card-body text-center">
                             <h4 class="card-title text-dark">{{ product.p_name }}</h4 >
@@ -111,7 +111,7 @@
                             <span v-if="product.discount" class="text-muted text-decoration-line-through ms-1">Rs {{ product.p_price }}</span>
                             </h5>
                         </div>
-                        </a>
+                        </RouterLink>
                     </div>
                     </div>
                     <span v-if="!popularCategoryProducts.length" class="text-muted">No products found in popular categories.</span>
@@ -138,7 +138,7 @@
                         </div>
 
 
-                        <a href="#" @click="addRecentView(product)">
+                        <RouterLink :to="`/product/${product.p_id}`" @click="addRecentView(product)">
                         <img :src="product.p_image" class="card-img-top" :alt="product.p_name">              <div class="card-body d-flex flex-column text-dark">
                             <h5 class="card-title text-center">{{ product.p_name }}</h5>
                             <p class="small text-muted mb-1">Recently viewed</p>
@@ -148,7 +148,7 @@
                             <span v-else class="fw-bold">Rs {{ product.p_price }}</span>
                             </div>
                         </div>
-                        </a>
+                        </RouterLink>
                     </div>
                     </div>
                 </div>

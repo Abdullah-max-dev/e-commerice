@@ -15,6 +15,8 @@ Route::post('/vender-signup', [AuthController::class, 'Vender_register']);
 Route::get('/categories-list', [CategoryController::class, 'index']);
 Route::get('/popular-products', [HomeController::class, 'popularProducts']);
 Route::get('/top-deals', [HomeController::class, 'topDeals']);
+Route::get('/products/{id}', [HomeController::class, 'productDetail']);
+Route::get('/products/{id}/related', [HomeController::class, 'relatedProducts']);
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
