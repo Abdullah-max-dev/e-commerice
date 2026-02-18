@@ -67,5 +67,9 @@ class Product extends Model
 
         return $price;
     }
+    public function vender()
+    {
+        return $this->belongsTo(User::class, 'v_id');
+    }
 
 }

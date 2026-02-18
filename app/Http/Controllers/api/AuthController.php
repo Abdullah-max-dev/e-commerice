@@ -119,6 +119,8 @@ class AuthController extends Controller
                 'business_address' => 'required|string|max:1000',
                 'tax_id' => 'required|string|max:255',
                 'document_url' => 'required|url|max:1000',
+                'shop_logo' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+
             ]
             : [
                 'phone' => 'required|string|max:30',
@@ -134,9 +136,19 @@ class AuthController extends Controller
                 'message' => $validation->errors(),
             ], 422);
         }
+        $validatedData = $validation->validated();
+
+        if ($request->hasFile('shop_logo')) {
+            $file = $request->file('shop_logo');
+
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $file->storeAs('shop_logos', $filename, 'public');
+        }
 
         $user->update([
-            'verification_data' => $validation->validated(),
+            'verification_data' => $validatedData,
+            'shop_logo' => $filename ?? null,
             'verification_status' => 'pending',
             'verification_note' => null,
             'verification_submitted_at' => now(),
@@ -159,7 +171,7 @@ class AuthController extends Controller
             }, function ($query) use ($normalizedRole) {
                 $query->where('role', $normalizedRole);
             })
-            ->select('id', 'name', 'email', 'role', 'verification_status', 'verification_note', 'verification_data', 'verification_submitted_at', 'verification_reviewed_at')
+            ->select('id', 'name', 'email', 'role', 'shop_logo', 'verification_status', 'verification_note', 'verification_data', 'verification_submitted_at', 'verification_reviewed_at')
             ->orderByDesc('id')
             ->get();
 

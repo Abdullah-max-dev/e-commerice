@@ -34,6 +34,11 @@
             <input v-model="form.document_url" type="url" class="form-control" placeholder="https://..." />
           </div>
         </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Shop Logo URL</label>
+            <input type="file" class="form-control" @change="handleFileUpload" />
+
+        </div>
 
         <div v-if="errors.length" class="alert alert-danger">
           <ul class="mb-0">
@@ -64,6 +69,7 @@ export default {
       business_address: '',
       tax_id: '',
       document_url: '',
+      shop_logo: '',
     })
 
     const verificationStatus = computed(() => store.state.verification_status)
@@ -89,23 +95,44 @@ export default {
     })
 
     const submitVerification = async () => {
-      errors.value = []
-      try {
-        const token = localStorage.getItem('token')
-        const res = await axios.post('/api/verification/submit', form, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        store.dispatch('setVerificationStatus', res.data.data.verification_status)
-      } catch (e) {
-        if (e.response?.data?.message) {
-          errors.value = Object.values(e.response.data.message).flat()
-        } else {
-          errors.value = ['Failed to submit verification form.']
+        errors.value = []
+
+        try {
+            const token = localStorage.getItem('token')
+
+            const formData = new FormData()
+            formData.append('business_name', form.business_name)
+            formData.append('business_type', form.business_type)
+            formData.append('business_address', form.business_address)
+            formData.append('tax_id', form.tax_id)
+            formData.append('document_url', form.document_url)
+            formData.append('shop_logo', form.shop_logo)
+
+            const res = await axios.post('/api/verification/submit', formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            },
+            })
+
+            store.dispatch('setVerificationStatus', res.data.data.verification_status)
+
+        } catch (e) {
+            if (e.response?.data?.message) {
+            errors.value = Object.values(e.response.data.message).flat()
+            } else {
+            errors.value = ['Failed to submit verification form.']
+            }
         }
-      }
     }
 
-    return { form, errors, submitVerification, statusMessage, statusClass }
+    const handleFileUpload = (e) => {
+        form.shop_logo = e.target.files[0]
+    }
+
+
+    return { form, errors, submitVerification, statusMessage, statusClass, handleFileUpload }
+
   },
 }
 </script>

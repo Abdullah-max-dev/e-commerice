@@ -25,6 +25,7 @@ class User extends Authenticatable
         'verification_note',
         'verification_submitted_at',
         'verification_reviewed_at',
+        'shop_logo',
     ];
 
     /**

@@ -24,7 +24,7 @@ class HomeController extends Controller
     }
      public function productDetail($id)
     {
-        $product = Product::with(['category', 'discount', 'mainImage'])
+        $product = Product::with(['category', 'discount', 'mainImage','images','vender' ])
             ->findOrFail($id);
 
         return response()->json([
@@ -62,18 +62,20 @@ class HomeController extends Controller
             'products' => $products
         ]);
     }
-      private function formatProductImage($product)
+    private function formatProductImage($product)
     {
+       
         $product->p_image = $product->mainImage
             ? '/uploads/products/' . $product->mainImage->image
             : '/default-product.png';
-            if ($product->relationLoaded('images')) {
-            $product->gallery_images = $product->images->map(function ($image) {
-                return '/uploads/products/' . $image->image;
-            })->values();
-        }
+
+
+        $product->gallery_images = $product->images->map(function ($image) {
+            return '/uploads/products/' . $image->image;
+        })->values();
 
         return $product;
     }
+
 
 }
