@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\CartItem;
 
 class Product extends Model
 {
@@ -70,6 +71,10 @@ class Product extends Model
     public function vender()
     {
         return $this->belongsTo(User::class, 'v_id');
+    }
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class, 'p_id', 'p_id');
     }
 
 }
