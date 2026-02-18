@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Http\Middleware\Admin;
 use App\Http\Middleware\Vender;
 use App\Http\Middleware\VerifiedAccount;
+use App\Http\Middleware\User;
 use Illuminate\Support\ServiceProvider;
 
 
@@ -27,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
         $router->aliasMiddleware('vender', Vender::class);
         $router->aliasMiddleware('admin', Admin::class);
         $router->aliasMiddleware('verified.account', VerifiedAccount::class);
+        $router->aliasMiddleware('user', User::class);
     }
 }

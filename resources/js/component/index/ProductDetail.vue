@@ -150,13 +150,14 @@
 
 import axios from 'axios'
 import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter  } from 'vue-router'
 import MainLayout from './layouts/MainLayout.vue'
 
 export default {
   components: { MainLayout },
 
   setup() {
+    const router = useRouter()
     const route = useRoute()
     const product = ref({})
     const quantity = ref(1)
@@ -186,11 +187,34 @@ export default {
       }
     }
 
-    const addToCart = () => {
-      cartMessage.value =
-        `${quantity.value} x ${product.value.p_name} added to cart!`
-    }
+    const addToCart = async () => {
+      const token = localStorage.getItem('token')
+      const role = localStorage.getItem('role')
 
+      if (!token || role !== 'user') {
+        cartMessage.value = 'Please login as a user to add items to cart.'
+        router.push('/user-login')
+        return
+      }
+
+      try {
+        const { data } = await axios.post(
+          '/api/cart',
+          {
+            p_id: product.value.p_id,
+            quantity: quantity.value,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+
+        cartMessage.value = data.message || `${quantity.value} x ${product.value.p_name} added to cart!`
+      } catch (error) {
+        cartMessage.value = error.response?.data?.message || 'Unable to add this product to cart.'
+      }
     onMounted(() => {
       fetchProduct(route.params.id)
     })

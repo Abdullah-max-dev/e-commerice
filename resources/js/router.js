@@ -24,7 +24,7 @@ const routes = [
     { path: '/product/:id', component: ProductDetail },
    { path: '/user-login', component: UserLogin },
   { path: '/vender-register', component: venderSignup },
-  { path: '/cart', component: Cart },
+  { path: '/cart', component: Cart, meta: { requiresAuth: true, role: 'user' } },
   { path: '/user-signup', component: UserRegister },
 
   { path: '/user-panel', component: UserPannel, meta: { requiresAuth: true, role: 'user' } },
