@@ -7,39 +7,44 @@
 
         <!-- Product Image -->
         <div class="col-md-6">
-        <!-- Main Image -->
-        <img :src="selectedImage || product.p_image"
-            class="img-fluid mb-3 main-img" />
 
-        <!-- Thumbnails -->
-        <div class="d-flex gap-2">
+          <!-- Main Image -->
+          <img
+            :src="selectedImage || product.p_image"
+            class="main-img"
+          />
+
+          <!-- Thumbnails -->
+          <div class="thumb-wrapper">
             <img
-            v-for="(img, index) in product.gallery_images"
-            :key="index"
-            :src="img"
-            class="thumb-img"
-            @click="selectedImage = img"
+              v-for="(img, index) in product.gallery_images"
+              :key="index"
+              :src="img"
+              class="thumb-img"
+              :class="{ active: selectedImage === img }"
+              @click="selectedImage = img"
             />
-        </div>
-        </div>
+          </div>
 
+        </div>
 
         <!-- Product Info -->
-        <div class="col-md-7">
+        <div class="col-md-6">
 
           <h2 class="product-title">{{ product.p_name }}</h2>
 
           <!-- Vendor Info -->
           <div v-if="product.vender" class="vendor-box mt-2 mb-3">
             <img
-              v-if="product.vender.shop_logo"
-              :src="`/storage/shop_logos/${product.vender.shop_logo}`"
-              class="vendor-logo"
-              alt="Vendor Logo"
+            v-if="product.vender?.shop_logo"
+            :src="`/storage/shop_logos/${product.vender.shop_logo}`"
+            class="vendor-logo"
+            alt="Vendor Logo"
             />
+
             <div>
               <small class="text-muted">Sold by</small>
-              <div class="fw-semibold">{{ product.vender.name }}</div>
+              <div class="fw-semibold">{{ product.vender.verification_data.business_name }}</div>
             </div>
           </div>
 
@@ -48,19 +53,18 @@
             <span class="current-price">
               Rs {{ product.final_price ?? product.p_price }}
             </span>
-            <span
-              v-if="product.discount"
-              class="old-price"
-            >
+
+            <span v-if="product.discount" class="old-price">
               Rs {{ product.p_price }}
             </span>
           </div>
 
           <!-- Discount -->
           <div v-if="product.discount" class="discount-badge mb-3">
-            {{ product.discount.type === 'percentage'
-              ? product.discount.value + '% OFF'
-              : 'Rs ' + product.discount.value + ' OFF'
+            {{
+              product.discount.type === 'percentage'
+                ? product.discount.value + '% OFF'
+                : 'Rs ' + product.discount.value + ' OFF'
             }}
           </div>
 
@@ -143,6 +147,7 @@
 </template>
 
 <script>
+
 import axios from 'axios'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -151,19 +156,19 @@ import MainLayout from './layouts/MainLayout.vue'
 export default {
   components: { MainLayout },
 
-
-
   setup() {
     const route = useRoute()
     const product = ref({})
     const quantity = ref(1)
     const cartMessage = ref('')
     const relatedProducts = ref([])
+    const selectedImage = ref(null)
 
     const fetchProduct = async id => {
       const res = await axios.get(`/api/products/${id}`)
       product.value = res.data.product
       quantity.value = 1
+      selectedImage.value = null
 
       const relRes = await axios.get(`/api/products/${id}/related`)
       relatedProducts.value = relRes.data.products || []
@@ -204,50 +209,79 @@ export default {
       decreaseQty,
       addToCart,
       cartMessage,
-      relatedProducts
+      relatedProducts,
+      selectedImage
     }
   },
-  data() {
-  return {
-    product: {},
-    selectedImage: null,
-  }
 }
 </script>
 
 <style scoped>
 
-/* Layout */
-.product-page {
-  padding-bottom: 60px;
-}
 
-/* Image */
-.image-wrapper {
-  background: #f9fafb;
-  padding: 20px;
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-}
 
-.product-image {
+.main-img {
   width: 100%;
-  max-height: 420px;
+  height: 420px;
   object-fit: contain;
-  transition: 0.3s ease;
+  background: #f9fafb;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  transition: transform 0.4s ease;
 }
 
-.product-image:hover {
-  transform: scale(1.05);
+.main-img:hover {
+  transform: scale(1.08);
 }
 
-/* Title */
+.thumb-wrapper {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.thumb-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.thumb-wrapper::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.thumb-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 14px;
+  cursor: pointer;
+  background: #ffffff;
+  padding: 5px;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.thumb-img:hover {
+  transform: translateY(-4px);
+  border-color: #2563eb;
+}
+
+.thumb-img.active {
+  border-color: #111827;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+
+
 .product-title {
   font-weight: 700;
   font-size: 1.8rem;
 }
 
-/* Vendor */
 .vendor-box {
   display: flex;
   align-items: center;
@@ -263,10 +297,8 @@ export default {
   height: 45px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #e5e7eb;
 }
 
-/* Price */
 .price-section {
   font-size: 1.6rem;
 }
@@ -283,7 +315,6 @@ export default {
   font-size: 1rem;
 }
 
-/* Discount */
 .discount-badge {
   display: inline-block;
   background: #dc2626;
@@ -293,12 +324,10 @@ export default {
   font-size: 0.85rem;
 }
 
-/* Stock */
 .stock-badge {
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.8rem;
-  font-weight: 500;
 }
 
 .in-stock {
@@ -311,13 +340,11 @@ export default {
   color: white;
 }
 
-/* Description */
 .description {
   line-height: 1.6;
   color: #374151;
 }
 
-/* Cart Section */
 .cart-section {
   display: flex;
   gap: 15px;
@@ -326,7 +353,6 @@ export default {
 
 .qty-control {
   display: flex;
-  align-items: center;
   border: 1px solid #d1d5db;
   border-radius: 25px;
   overflow: hidden;
@@ -364,7 +390,8 @@ export default {
   font-weight: 500;
 }
 
-/* Related */
+
+
 .related-card {
   background: white;
   border-radius: 18px;
@@ -397,32 +424,15 @@ export default {
 .btn-view:hover {
   background: #111827;
 }
-.main-img {
-  border-radius: 16px;
-  padding: 15px;
-  background: #f9fafb;
-}
-
-.thumb-img {
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 10px;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: 0.3s;
-}
-
-.thumb-img:hover {
-  border-color: #111827;
-  transform: scale(1.05);
-}
-
 
 @media (max-width: 768px) {
   .cart-section {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .main-img {
+    height: 300px;
   }
 }
 

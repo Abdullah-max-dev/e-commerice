@@ -9,7 +9,7 @@ class HomeController extends Controller
 
     public function popularProducts()
     {
-        $products = Product::with(['category', 'discount', 'mainImage'])
+        $products = Product::with(['category', 'discount', 'mainImage','images','vender' ])
             ->whereHas('category', function ($q) {
                 $q->where('is_popular', 1);
             })
@@ -36,7 +36,7 @@ class HomeController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $products = Product::with(['category', 'discount', 'mainImage'])
+        $products = Product::with(['category', 'discount', 'mainImage','images','vender' ])
             ->where('c_id', $product->c_id)
             ->where('p_id', '!=', $product->p_id)
             ->latest()
@@ -51,7 +51,7 @@ class HomeController extends Controller
 
     public function topDeals()
     {
-        $products = Product::with(['category', 'discount','mainImage'])
+        $products = Product::with(['category', 'discount', 'mainImage','images','vender' ])
             ->where('is_top_deal', 1)
             ->latest()
             ->take(8)
@@ -64,7 +64,7 @@ class HomeController extends Controller
     }
     private function formatProductImage($product)
     {
-       
+
         $product->p_image = $product->mainImage
             ? '/uploads/products/' . $product->mainImage->image
             : '/default-product.png';
@@ -73,6 +73,12 @@ class HomeController extends Controller
         $product->gallery_images = $product->images->map(function ($image) {
             return '/uploads/products/' . $image->image;
         })->values();
+
+        if ($product->relationLoaded('vender') && $product->vender) {
+            $product->vender->shop_logo_url = $product->vender->shop_logo
+                ? '/storage/shop_logos/' . $product->vender->shop_logo
+                : null;
+        }
 
         return $product;
     }
