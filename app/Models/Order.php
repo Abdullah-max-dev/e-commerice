@@ -8,6 +8,7 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id',
+        'order_number',
         'customer_name',
         'customer_email',
         'customer_phone',
@@ -16,12 +17,10 @@ class Order extends Model
         'subtotal',
         'discount',
         'total',
-        'items',
         'status',
     ];
 
     protected $casts = [
-        'items' => 'array',
         'subtotal' => 'decimal:2',
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
@@ -30,5 +29,9 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

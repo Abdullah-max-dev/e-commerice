@@ -208,9 +208,9 @@ export default {
       processing.value = true
       try {
         const { data } = await axios.post('/api/orders', form, authHeader())
-        successMessage.value = data.message || 'Order placed successfully.'
+        successMessage.value = data.order?.order_number ? `${data.message} Order #${data.order.order_number}` : (data.message || 'Order placed successfully.')
         applyCartResponse(data)
-        setTimeout(() => router.push('/'), 1200)
+        setTimeout(() => router.push('/user/order-history'), 1200)
       } catch (error) {
         if (error.response?.status === 422 && error.response?.data?.errors) {
           resetValidation()

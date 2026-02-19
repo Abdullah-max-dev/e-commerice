@@ -46,6 +46,13 @@
           </ul>
         </div>
       </li>
+
+      <li class="nav-item">
+        <router-link to="/vender/orders" class="nav-link text-light">
+          <i class="fa-solid fa-box me-2"></i>
+          Orders
+        </router-link>
+      </li>
        <li class="nav-item">
         <router-link to="/vender/settings" class="nav-link text-light">
           <i class="fa-solid fa-gear me-2"></i>

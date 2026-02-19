@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\CartController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/cart/{id}', [CartController::class, 'destroy']);
         Route::delete('/cart', [CartController::class, 'clear']);
         Route::post('/orders', [OrderController::class, 'store']);
+        Route::get('/orders', [OrderController::class, 'userOrders']);
     });
 });
 
@@ -43,6 +45,8 @@ Route::middleware(['auth:sanctum', 'vender'])->group(function () {
     Route::put('/vender/products/{id}', [ProductController::class, 'update']);
     Route::get('/vender/products/{id}', [ProductController::class, 'show']);
     Route::post('/vender/products/{id}/discount', [ProductController::class, 'storeDiscount'])->middleware('verified.account');
+    Route::get('/vender/orders', [OrderController::class, 'venderOrders']);
+    Route::patch('/vender/orders/{order}/status', [OrderController::class, 'updateStatus']);
 
 });
 

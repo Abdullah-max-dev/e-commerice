@@ -18,6 +18,8 @@ import VenderSettings from './component/vender/Settings.vue'
 import UserSettings from './component/user/Settings.vue'
 import Verification from './component/admin/Verification.vue'
 import ProductDetail from './component/index/ProductDetail.vue'
+import OrderManagement from './component/vender/OrderManagement.vue'
+import OrderHistory from './component/user/OrderHistory.vue'
 
 const routes = [
     { path: '/', component: Home },
@@ -30,9 +32,11 @@ const routes = [
     { path: '/cart', component: Cart, meta: { requiresAuth: true, role: 'user' } },
     { path: '/user-panel', component: UserPannel, meta: { requiresAuth: true, role: 'user' } },
     { path: '/user/settings', component: UserSettings, meta: { requiresAuth: true, role: 'user' } },
+    { path: '/user/order-history', component: OrderHistory, meta: { requiresAuth: true, role: 'user' } },
 
     { path: '/vender-panel', component: VenderPannel, meta: { requiresAuth: true, role: 'vender' } },
     { path: '/vender/settings', component: VenderSettings, meta: { requiresAuth: true, role: 'vender' } },
+    { path: '/vender/orders', component: OrderManagement, meta: { requiresAuth: true, role: 'vender' } },
     { path: '/vender/add-product', component: AddProduct, meta: { requiresAuth: true, role: 'vender', requiresVerified: true } },
     { path: '/vender/view-product', component: ViewProduct, meta: { requiresAuth: true, role: 'vender' } },
     { path: '/vender/products/:id/edit', component: EditProduct, meta: { requiresAuth: true, role: 'vender' } },
