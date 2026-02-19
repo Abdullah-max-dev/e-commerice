@@ -9,7 +9,7 @@
 
   <!-- Sidebar -->
   <div
-    class="bg-dark text-light vh-100 p-3 sidebar"
+     class="bg-dark text-light p-3 sidebar"
     :class="{ show: isOpen }"
   >
     <ul class="nav flex-column gap-2">
@@ -81,9 +81,11 @@ export default {
 }
 </script>
 
+
 <style scoped>
 .sidebar {
   width: 230px;
+  min-height: 100%;
   position: fixed;
   left: -230px;
   top: 0;

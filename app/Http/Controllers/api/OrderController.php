@@ -53,9 +53,9 @@ class OrderController extends Controller
                 'items' => [],
                 'status' => 'pending',
             ]);
-            $order->items()->createMany($items);
+            $order->orderItems()->createMany($items);
             CartItem::where('user_id', $user->id)->delete();
-            return $order->load('items.product');
+            return $order->load('orderItems.product');
         });
 
         return response()->json([
@@ -73,7 +73,7 @@ class OrderController extends Controller
 
     public function userOrders(Request $request)
     {
-        $orders = Order::with(['items.product'])
+        $orders = Order::with(['orderItems.product'])
             ->where('user_id', $request->user()->id)
             ->latest()
             ->get()
@@ -87,14 +87,14 @@ class OrderController extends Controller
         $venderId = $request->user()->id;
 
         $orders = Order::with([
-            'items' => fn ($query) => $query->where('v_id', $venderId)->with('product'),
+            'orderItems' => fn ($query) => $query->where('v_id', $venderId)->with('product'),
             'user:id,name,email',
         ])
-            ->whereHas('items', fn ($query) => $query->where('v_id', $venderId))
+            ->whereHas('orderItems', fn ($query) => $query->where('v_id', $venderId))
             ->latest()
             ->get()
             ->map(function (Order $order) {
-                $vendorTotal = $order->items->sum('line_total');
+                $vendorTotal = $order->orderItems->sum('line_total');
 
                 return [
                     'id' => $order->id,
@@ -108,7 +108,7 @@ class OrderController extends Controller
                         'phone' => $order->customer_phone,
                         'address' => $order->customer_address,
                     ],
-                    'products' => $order->items->map(function (OrderItem $item) {
+                    'products' => $order->orderItems->map(function (OrderItem $item) {
                         return [
                             'id' => $item->id,
                             'product_id' => $item->p_id,
@@ -132,7 +132,7 @@ class OrderController extends Controller
         ]);
 
         $venderId = $request->user()->id;
-        $belongsToVender = $order->items()->where('v_id', $venderId)->exists();
+        $belongsToVender = $order->orderItems()->where('v_id', $venderId)->exists();
 
         if (! $belongsToVender) {
             return response()->json(['message' => 'Order not found.'], 404);
@@ -208,7 +208,7 @@ class OrderController extends Controller
                 'phone' => $order->customer_phone,
                 'address' => $order->customer_address,
             ],
-            'products' => $order->items->map(function (OrderItem $item) {
+            'products' => $order->orderItems->map(function (OrderItem $item) {
                 return [
                     'id' => $item->id,
                     'product_id' => $item->p_id,

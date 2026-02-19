@@ -41,6 +41,7 @@ export default {
   display: flex;
   flex: 1;
   background: #f8f9fa;
+  align-items: stretch;
 }
 
 /* Sidebar width MUST match sidebar component */
@@ -53,7 +54,6 @@ export default {
 .content {
   flex: 1;
   padding: 20px;
-  overflow-y: auto;
   background: #f8f9fa;
 }
 </style>

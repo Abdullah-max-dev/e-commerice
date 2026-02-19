@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-dark text-light vh-100 p-3 sidebar">
+  <div class="bg-dark text-light p-3 sidebar">
     <ul class="nav flex-column gap-2">
 
       <li class="nav-item">
@@ -42,7 +42,9 @@ export default {}
 <style scoped>
 .sidebar {
   width: 230px;
+  min-height: 100%;
 }
+
 .nav-link.router-link-active {
   background: #0d6efd;
   border-radius: 6px;
