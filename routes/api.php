@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('/cart/{id}', [CartController::class, 'update']);
         Route::delete('/cart/{id}', [CartController::class, 'destroy']);
         Route::delete('/cart', [CartController::class, 'clear']);
+        Route::post('/orders', [OrderController::class, 'store']);
     });
 });
 
