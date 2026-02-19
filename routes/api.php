@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\CartController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\VendorDashboardController;
+use App\Http\Controllers\Api\UserDashboardController;
 
 // Public routes
 Route::post('/user-signup', [AuthController::class, 'signup']);
@@ -34,6 +36,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/cart', [CartController::class, 'clear']);
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders', [OrderController::class, 'userOrders']);
+        Route::get('/dashboard/summary', [UserDashboardController::class, 'summary']);
+        Route::get('/dashboard/orders', [UserDashboardController::class, 'recentOrders']);
+        Route::patch('/dashboard/billing-address', [UserDashboardController::class, 'updateBillingAddress']);
     });
 });
 
@@ -47,6 +52,11 @@ Route::middleware(['auth:sanctum', 'vender'])->group(function () {
     Route::post('/vender/products/{id}/discount', [ProductController::class, 'storeDiscount'])->middleware('verified.account');
     Route::get('/vender/orders', [OrderController::class, 'venderOrders']);
     Route::patch('/vender/orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::get('/vender/dashboard/profile', [VendorDashboardController::class, 'profile']);
+    Route::get('/vender/dashboard/stats', [VendorDashboardController::class, 'stats']);
+    Route::get('/vender/dashboard/recent-orders', [VendorDashboardController::class, 'recentOrders']);
+    Route::get('/vender/dashboard/products', [VendorDashboardController::class, 'products']);
+    Route::get('/vender/dashboard/notifications', [VendorDashboardController::class, 'notifications']);
 
 });
 

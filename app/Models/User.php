@@ -28,6 +28,8 @@ class User extends Authenticatable
         'verification_submitted_at',
         'verification_reviewed_at',
         'shop_logo',
+        'billing_address',
+        'rewards_points',
     ];
 
     /**
@@ -55,6 +57,7 @@ class User extends Authenticatable
             'verification_data' => 'array',
             'verification_submitted_at' => 'datetime',
             'verification_reviewed_at' => 'datetime',
+            'rewards_points' => 'integer',
         ];
     }
     public function cartItems()

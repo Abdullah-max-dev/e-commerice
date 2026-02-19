@@ -1,7 +1,7 @@
 <template>
     <MainLayout />
     <div class="container-fluid bg-light p-5">
-        <h1 class="text-center text-secondary"><i class="fa-solid fa-user"></i>User register</h1>
+        <h1 class="text-center text-secondary"><i class="fa-solid fa-user"></i>Vender register</h1>
     </div>
     <section>
         <div class='container'>

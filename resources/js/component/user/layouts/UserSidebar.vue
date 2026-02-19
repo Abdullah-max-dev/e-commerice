@@ -42,9 +42,10 @@ export default {}
 <style scoped>
 .sidebar {
   width: 230px;
-  min-height: 100%;
+  height: 100%;
+  position: sticky;
+  top: 0;
 }
-
 .nav-link.router-link-active {
   background: #0d6efd;
   border-radius: 6px;

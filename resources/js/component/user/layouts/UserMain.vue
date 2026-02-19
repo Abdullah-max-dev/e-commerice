@@ -31,7 +31,7 @@ export default {
 <style scoped>
 /* Whole page */
 .layout-wrapper {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -40,8 +40,8 @@ export default {
 .layout-body {
   display: flex;
   flex: 1;
+  min-height: 0;
   background: #f8f9fa;
-  align-items: stretch;
 }
 
 /* Sidebar width MUST match sidebar component */
@@ -54,6 +54,8 @@ export default {
 .content {
   flex: 1;
   padding: 20px;
+  overflow-y: auto;
+  min-height: 0;
   background: #f8f9fa;
 }
 </style>

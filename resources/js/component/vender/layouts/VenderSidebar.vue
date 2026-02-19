@@ -85,7 +85,7 @@ export default {
 <style scoped>
 .sidebar {
   width: 230px;
-  min-height: 100%;
+  height: 100%;
   position: fixed;
   left: -230px;
   top: 0;
@@ -102,7 +102,8 @@ export default {
 @media (min-width: 768px) {
   .sidebar {
     left: 0;
-    position: static;
+    position: sticky;
+    top: 0;
   }
 }
 .nav-link.router-link-active {
