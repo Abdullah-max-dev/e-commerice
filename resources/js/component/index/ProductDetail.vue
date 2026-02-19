@@ -9,21 +9,24 @@
         <div class="col-md-6">
 
           <!-- Main Image -->
-          <img
-            :src="selectedImage || product.p_image"
-            class="main-img"
-          />
+        <img
+        :src="selectedImage || product?.p_image || '/default-product.png'"
+        class="img-fluid mb-3 main-img"
+        />
 
-          <!-- Thumbnails -->
-          <div class="thumb-wrapper">
-            <img
-              v-for="(img, index) in product.gallery_images"
-              :key="index"
-              :src="img"
-              class="thumb-img"
-              :class="{ active: selectedImage === img }"
-              @click="selectedImage = img"
-            />
+        <!-- Thumbnails -->
+        <div class="thumb-wrapper" v-if="product?.gallery_images?.length">
+        <img
+            v-for="(img, index) in product.gallery_images || []"
+            :key="index"
+            :src="img"
+            class="thumb-img"
+            :class="{ active: selectedImage === img }"
+            @click="selectedImage = img"
+        />
+</div>
+
+
           </div>
 
         </div>
@@ -31,20 +34,20 @@
         <!-- Product Info -->
         <div class="col-md-6">
 
-          <h2 class="product-title">{{ product.p_name }}</h2>
+          <h2 class="product-title" v-if="product?.p_name">{{ product.p_name }}</h2>
 
           <!-- Vendor Info -->
-          <div v-if="product.vender" class="vendor-box mt-2 mb-3">
+          <div v-if="vender" class="vendor-box mt-2 mb-3">
             <img
-            v-if="product.vender?.shop_logo"
-            :src="`/storage/shop_logos/${product.vender.shop_logo}`"
+            v-if="vender?.shop_logo"
+            :src="`/storage/shop_logos/${vender.shop_logo}`"
             class="vendor-logo"
             alt="Vendor Logo"
             />
 
             <div>
               <small class="text-muted">Sold by</small>
-              <div class="fw-semibold">{{ product.vender.verification_data.business_name }}</div>
+              <div class="fw-semibold">{{ vender.verification_data.business_name }}</div>
             </div>
           </div>
 
@@ -141,103 +144,109 @@
           No related products found.
         </p>
       </div>
-
-    </div>
   </MainLayout>
 </template>
 
 <script>
 
 import axios from 'axios'
-import { ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter  } from 'vue-router'
 import MainLayout from './layouts/MainLayout.vue'
 
-export default {
-  components: { MainLayout },
+    export default {
+        components: { MainLayout },
 
-  setup() {
-    const router = useRouter()
-    const route = useRoute()
-    const product = ref({})
-    const quantity = ref(1)
-    const cartMessage = ref('')
-    const relatedProducts = ref([])
-    const selectedImage = ref(null)
+        setup() {
+            const router = useRouter()
+            const route = useRoute()
+            const defaultProduct = { gallery_images: [], p_stock: 0 }
+            const product = ref({ ...defaultProduct })
+            const quantity = ref(1)
+            const cartMessage = ref('')
+            const relatedProducts = ref([])
+            const selectedImage = ref(null)
 
-    const fetchProduct = async id => {
-      const res = await axios.get(`/api/products/${id}`)
-      product.value = res.data.product
-      quantity.value = 1
-      selectedImage.value = null
+            const vender = computed(() => product.value?.vender ?? null)
+            const venderName = computed(() => vender.value?.verification_data?.business_name || 'Verified Vender')
 
-      const relRes = await axios.get(`/api/products/${id}/related`)
-      relatedProducts.value = relRes.data.products || []
+            const fetchProduct = async id => {
+            const res = await axios.get(`/api/products/${id}`)
+            product.value = res.data?.product ?? { ...defaultProduct }
+            quantity.value = 1
+            selectedImage.value = null
+
+            const relRes = await axios.get(`/api/products/${id}/related`)
+            relatedProducts.value = relRes.data.products || []
+            }
+
+            const increaseQty = () => {
+            if (quantity.value < (product.value?.p_stock ?? 0)) {
+                quantity.value++
+            }
+            }
+
+            const decreaseQty = () => {
+            if (quantity.value > 1) {
+                quantity.value--
+            }
+            }
+
+            const addToCart = async () => {
+                const token = localStorage.getItem('token')
+                const role = localStorage.getItem('role')
+
+                if (!token || role !== 'user') {
+                    cartMessage.value = 'Please login as a user to add items to cart.'
+                    router.push('/user-login')
+                    return
+                }
+
+                try {
+                    const { data } = await axios.post(
+                    '/api/cart',
+                    {
+                        p_id: product.value?.p_id,
+                        quantity: quantity.value,
+                    },
+                    {
+                        headers: {
+                        Authorization: `Bearer ${token}`,
+                        },
+                    }
+                    )
+
+                    cartMessage.value = data.message || `${quantity.value} x ${product.value?.p_name} added to cart!`
+                } catch (error) {
+                    cartMessage.value = error.response?.data?.message || 'Unable to add this product to cart.'
+                }
+            }
+            onMounted(() => {
+                fetchProduct(route.params.id)
+            })
+
+            watch(
+            () => route.params.id,
+            id => {
+                if (id) fetchProduct(id)
+            }
+            )
+
+            return {
+            product,
+            quantity,
+            increaseQty,
+            decreaseQty,
+            addToCart,
+            cartMessage,
+            relatedProducts,
+            selectedImage,
+            vender,
+            venderName,
+            }
+        }
     }
 
-    const increaseQty = () => {
-      if (quantity.value < product.value.p_stock) {
-        quantity.value++
-      }
-    }
-
-    const decreaseQty = () => {
-      if (quantity.value > 1) {
-        quantity.value--
-      }
-    }
-
-    const addToCart = async () => {
-      const token = localStorage.getItem('token')
-      const role = localStorage.getItem('role')
-
-      if (!token || role !== 'user') {
-        cartMessage.value = 'Please login as a user to add items to cart.'
-        router.push('/user-login')
-        return
-      }
-
-      try {
-        const { data } = await axios.post(
-          '/api/cart',
-          {
-            p_id: product.value.p_id,
-            quantity: quantity.value,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-
-        cartMessage.value = data.message || `${quantity.value} x ${product.value.p_name} added to cart!`
-      } catch (error) {
-        cartMessage.value = error.response?.data?.message || 'Unable to add this product to cart.'
-      }
-    onMounted(() => {
-      fetchProduct(route.params.id)
-    })
-
-    watch(
-      () => route.params.id,
-      id => {
-        if (id) fetchProduct(id)
-      }
-    )
-
-    return {
-      product,
-      quantity,
-      increaseQty,
-      decreaseQty,
-      addToCart,
-      cartMessage,
-      relatedProducts,
-      selectedImage
-    }
-  },
-}
 </script>
 
 <style scoped>
