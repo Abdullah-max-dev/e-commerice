@@ -50,6 +50,7 @@ class OrderController extends Controller
                 'subtotal' => round($subtotal, 2),
                 'discount' => round($subtotal - $total, 2),
                 'total' => round($total, 2),
+                'items' => [],
                 'status' => 'pending',
             ]);
             $order->items()->createMany($items);

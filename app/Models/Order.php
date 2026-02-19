@@ -17,6 +17,7 @@ class Order extends Model
         'subtotal',
         'discount',
         'total',
+        'items',
         'status',
     ];
 
@@ -24,6 +25,7 @@ class Order extends Model
         'subtotal' => 'decimal:2',
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
+        'items' => 'array',
     ];
 
     public function user()
