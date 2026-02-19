@@ -75,7 +75,7 @@
                                                 <td>{{ order.order_id }}</td>
                                                 <td>{{ order.customer_name }}</td>
                                                 <td>{{ order.date }}</td>
-                                                <td>${{ Number(order.total || 0).toFixed(2) }}</td>
+                                                <td>RS {{ Number(order.total || 0).toFixed(2) }}</td>
                                                 <td><span class="status-pill text-capitalize">{{ order.status }}</span></td>
                                             </tr>
                                             <tr v-if="!recentOrders.data.length">
@@ -140,7 +140,7 @@
                                 <tbody>
                                     <tr v-for="item in products.data" :key="item.id">
                                         <td>{{ item.name }}</td>
-                                        <td>${{ Number(item.price || 0).toFixed(2) }}</td>
+                                        <td>RS {{ Number(item.price || 0).toFixed(2) }}</td>
                                         <td>{{ item.stock }}</td>
                                         <td><span class="status-pill text-capitalize">{{ item.stock_status.replace('_', ' ') }}</span></td>
                                         <td><router-link class="btn btn-sm btn-outline-primary" :to="item.quick_edit_url">Edit</router-link></td>
@@ -218,10 +218,10 @@ export default {
 
         const statCards = computed(() => [
             { title: 'Total Orders', value: stats.total_orders },
-            { title: 'Total Sales', value: `$${Number(stats.total_sales || 0).toFixed(2)}` },
+            { title: 'Total Sales', value: `RS ${Number(stats.total_sales || 0).toFixed(2)}` },
             { title: 'Pending Orders', value: stats.pending_orders },
             { title: 'Active Products', value: stats.active_products },
-            { title: 'Monthly Revenue', value: `$${Number((stats.monthly_revenue.at(-1) || {}).total || 0).toFixed(2)}` }
+            { title: 'Monthly Revenue', value: `RS ${Number((stats.monthly_revenue.at(-1) || {}).total || 0).toFixed(2)}` }
         ])
 
         const config = () => ({ headers: { Authorization: `Bearer ${token}` } })

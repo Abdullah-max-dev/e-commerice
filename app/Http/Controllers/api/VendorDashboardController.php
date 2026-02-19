@@ -9,6 +9,7 @@ use App\Models\VendorNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class VendorDashboardController extends Controller
 {
@@ -164,19 +165,23 @@ class VendorDashboardController extends Controller
     {
         $vendor = $request->user();
 
-        $stored = VendorNotification::query()
-            ->where('vendor_id', $vendor->id)
-            ->latest()
-            ->limit(10)
-            ->get()
-            ->map(fn (VendorNotification $notification) => [
-                'id' => $notification->id,
-                'type' => $notification->type,
-                'title' => $notification->title,
-                'message' => $notification->message,
-                'is_read' => $notification->is_read,
-                'created_at' => optional($notification->created_at)->toDateTimeString(),
-            ]);
+         $stored = collect();
+
+        if (Schema::hasTable('vendor_notifications')) {
+            $stored = VendorNotification::query()
+                ->where('vendor_id', $vendor->id)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn (VendorNotification $notification) => [
+                    'id' => $notification->id,
+                    'type' => $notification->type,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'is_read' => $notification->is_read,
+                    'created_at' => optional($notification->created_at)->toDateTimeString(),
+                ]);
+        }
 
         $lowStockCount = Product::query()->where('v_id', $vendor->id)->where('p_stock', '<=', 5)->count();
         $pendingVerification = $vendor->verification_status !== 'verified';
