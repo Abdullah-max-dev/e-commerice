@@ -7,24 +7,17 @@
 
         <!-- Product Image -->
         <div class="col-md-6">
+            <img :src="selectedImage || product?.p_image || '/default-product.png'" class="img-fluid mb-3 main-img" />
+            <div class="thumb-wrapper" v-if="product?.gallery_images?.length">
+            <img
+              v-for="(img, index) in product.gallery_images || []"
+              :key="index"
+              :src="img"
+              class="thumb-img"
+              :class="{ active: selectedImage === img }"
+              @click="selectedImage = img"
+            />
 
-          <!-- Main Image -->
-        <img
-        :src="selectedImage || product?.p_image || '/default-product.png'"
-        class="img-fluid mb-3 main-img"
-        />
-
-        <!-- Thumbnails -->
-        <div class="thumb-wrapper" v-if="product?.gallery_images?.length">
-        <img
-            v-for="(img, index) in product.gallery_images || []"
-            :key="index"
-            :src="img"
-            class="thumb-img"
-            :class="{ active: selectedImage === img }"
-            @click="selectedImage = img"
-        />
-</div>
 
 
           </div>
@@ -37,54 +30,39 @@
           <h2 class="product-title" v-if="product?.p_name">{{ product.p_name }}</h2>
 
           <!-- Vendor Info -->
+          <div class="mb-2 text-warning fw-semibold">
+            {{ averageRating.toFixed(1) }} ★
+            <small class="text-muted ms-1">({{ ratingsCount }} ratings)</small>
+          </div>
           <div v-if="vender" class="vendor-box mt-2 mb-3">
-            <img
-            v-if="vender?.shop_logo"
-            :src="`/storage/shop_logos/${vender.shop_logo}`"
-            class="vendor-logo"
-            alt="Vendor Logo"
-            />
+            <img v-if="vender?.shop_logo" :src="`/storage/shop_logos/${vender.shop_logo}`" class="vendor-logo" alt="Vendor Logo" />
 
             <div>
               <small class="text-muted">Sold by</small>
-              <div class="fw-semibold">{{ vender.verification_data.business_name }}</div>
+              <div class="fw-semibold">{{venderName }}</div>
             </div>
           </div>
 
           <!-- Price -->
           <div class="price-section mb-2">
-            <span class="current-price">
-              Rs {{ product.final_price ?? product.p_price }}
-            </span>
-
-            <span v-if="product.discount" class="old-price">
-              Rs {{ product.p_price }}
-            </span>
+            <span class="current-price">Rs {{ product.final_price ?? product.p_price }}</span>
+            <span v-if="product.discount" class="old-price">Rs {{ product.p_price }}</span>
           </div>
 
           <!-- Discount -->
           <div v-if="product.discount" class="discount-badge mb-3">
-            {{
-              product.discount.type === 'percentage'
-                ? product.discount.value + '% OFF'
-                : 'Rs ' + product.discount.value + ' OFF'
-            }}
+             {{ product.discount.type === 'percentage' ? product.discount.value + '% OFF' : 'Rs ' + product.discount.value + ' OFF' }}
           </div>
 
           <!-- Stock -->
           <div class="mb-3">
-            <span
-              class="stock-badge"
-              :class="product.p_stock > 0 ? 'in-stock' : 'out-stock'"
-            >
+            <span class="stock-badge" :class="product.p_stock > 0 ? 'in-stock' : 'out-stock'">
               {{ product.p_stock > 0 ? 'In Stock' : 'Out of Stock' }}
             </span>
           </div>
 
           <!-- Description -->
-          <p class="description">
-            {{ product.p_description || 'No description available.' }}
-          </p>
+          <p class="description">{{ product.p_description || 'No description available.' }}</p>
 
           <!-- Quantity + Cart -->
           <div class="cart-section mt-4">
@@ -95,13 +73,8 @@
               <button @click="increaseQty">+</button>
             </div>
 
-            <button
-              class="btn-add-cart"
-              :disabled="product.p_stock <= 0"
-              @click="addToCart"
-            >
-              🛒 Add to Cart
-            </button>
+            <button class="btn-add-cart" :disabled="product.p_stock <= 0" @click="addToCart">🛒 Add to Cart</button>
+          </div>
 
           </div>
 
