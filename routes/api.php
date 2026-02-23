@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\ProductCommentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\VendorDashboardController;
 use App\Http\Controllers\Api\UserDashboardController;
@@ -21,7 +22,7 @@ Route::get('/popular-products', [HomeController::class, 'popularProducts']);
 Route::get('/top-deals', [HomeController::class, 'topDeals']);
 Route::get('/products/{id}', [HomeController::class, 'productDetail']);
 Route::get('/products/{id}/related', [HomeController::class, 'relatedProducts']);
-
+Route::get('/products/{id}/comments', [ProductCommentController::class, 'index']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -39,6 +40,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/dashboard/summary', [UserDashboardController::class, 'summary']);
         Route::get('/dashboard/orders', [UserDashboardController::class, 'recentOrders']);
         Route::patch('/dashboard/billing-address', [UserDashboardController::class, 'updateBillingAddress']);
+        Route::post('/products/{id}/comments', [ProductCommentController::class, 'store']);
     });
 });
 

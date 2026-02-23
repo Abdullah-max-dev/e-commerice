@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+
+class ProductCommentController extends Controller
+{
+    public function index($productId){
+        Product::findOrFail($productId);
+        $comments = ProductComment::with(['user:id,name','replies'])
+                ->where('product_id',$productId)
+                ->whereNull('parent_id')
+                ->latest()
+                ->get();
+        $averageRating = ProductComment::where('product_id',$productId)
+                ->whereNull('parent_id')
+                ->avg('rating');
+        return response()->json([
+            'comments' => $comments,
+            'average_rating' => $averageRating ? round((float) $averageRating, 1) :0,
+            'ratings_count' => ProductComment::where('product_id',$productId)->whereNull('parent_id')->count()
+        ]);
+    }
+
+    public function store(Request $req, $productId){
+        product::findOrFail($productId);
+
+        $validate = $req->validate([
+            'parent_id' =>  ['nullable', 'exist:product_comments','id'],
+            'comment'   =>  ['required', 'string', 'min:2', 'max:20000'],
+            'rating'    =>  ['nullable', 'integer', rule::in([1,2,3,4,5])],
+        ]);
+        if(!empty($validate['parent_id'])){
+            $parentComment = ProductComment::where('id', $validate['parent_id'])
+                ->where('product_id', $productId )
+                ->firstOrFail();
+            if(!is_null($parentComment->parent_id)){
+                return response()->json([
+                    'message' => 'You can only reply to main comment.',
+                ],422);
+            }
+            $validate['rating'] = null;
+        }elseif(!isset($validate['rating'])){
+            return response()->json([
+                'message' => 'Rating is rquired for main comment.',
+                'errors'  => ['rating'=>['Rating is rquired for main comment.']],
+            ],422);
+        }
+        $comment = ProductComment::create([
+            'user_id'    =>  $req->user()->id,
+            'product_id' =>  $productId,
+            'parent_id'  =>  $validate['parent_id'] ?? null,
+            'comment'    =>  $validate['comment'],
+            'rating'     =>  $validate['rating'] ?? null,
+        ])->load('user:id,name');
+        return response()->json([
+            'message' => 'Comment submitted successfully.',
+            'comment' => $comment,
+        ], 201);
+
+    }
+}

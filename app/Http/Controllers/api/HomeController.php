@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 use App\Models\Product;
 use App\Http\Controllers\Controller;
+use App\Models\ProductComment;
 
 class HomeController extends Controller
 {
@@ -26,9 +27,14 @@ class HomeController extends Controller
     {
         $product = Product::with(['category', 'discount', 'mainImage','images','vender' ])
             ->findOrFail($id);
+        $averageRating = ProductComment::where('product_id', $product->p_id)
+            ->whereNull('parent_id')
+            ->avg('rating');
 
         return response()->json([
-            'product' => $this->formatProductImage($product)
+            'product' => $this->formatProductImage($product),
+            'average_rating' => $averageRating ? round((float) $averageRating, 1) : 0,
+            'ratings_count' => ProductComment::where('product_id', $product->p_id)->whereNull('parent_id')->count(),
         ]);
     }
 
@@ -36,13 +42,32 @@ class HomeController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $products = Product::with(['category', 'discount', 'mainImage','images','vender' ])
-            ->where('c_id', $product->c_id)
+        $baseQuery = Product::with(['category', 'discount', 'mainImage', 'images', 'vender'])
             ->where('p_id', '!=', $product->p_id)
-            ->latest()
+            ->latest();
+
+        $products = (clone $baseQuery)
+            ->when($product->c_id, fn ($query) => $query->where('c_id', $product->c_id))
             ->take(4)
-            ->get()
-            ->map(fn ($relatedProduct) => $this->formatProductImage($relatedProduct));
+            ->get();
+
+        if ($products->count() < 4) {
+            $needed = 4 - $products->count();
+
+            $fallbackProducts = (clone $baseQuery)
+                ->whereNotIn('p_id', $products->pluck('p_id')->all())
+                ->take($needed)
+                ->get();
+
+            $products = $products->concat($fallbackProducts);
+        }
+
+        $products = $products
+            ->take(4)
+            ->map(fn ($relatedProduct) => $this->formatProductImage($relatedProduct))
+            ->values();
+
+
 
         return response()->json([
             'products' => $products

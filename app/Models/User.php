@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\CartItem;
 use App\Models\Order;
+use App\Models\ProductComment;
 
 class User extends Authenticatable
 {
@@ -67,5 +68,9 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+    public function comments()
+    {
+        return $this->hasMany(ProductComment::class);
     }
 }
