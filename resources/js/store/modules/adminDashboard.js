@@ -40,12 +40,22 @@ export default {
       const config = token
         ? { headers: { Authorization: `Bearer ${token}` } }
         : {}
+      const fetchCategories = async () => {
+        try {
+          return await axios.get('/api/categories', config)
+        } catch (error) {
+          if (error?.response?.status === 403) {
+            return axios.get('/api/categories-list')
+          }
 
+          throw error
+        }
+      }
       try {
         const [usersRes, vendersRes, categoriesRes] = await Promise.all([
           axios.get('/api/admin/users', config),
           axios.get('/api/admin/venders', config),
-          axios.get('/api/categories', config),
+          fetchCategories(),
         ])
 
         commit('SET_DATA', {
