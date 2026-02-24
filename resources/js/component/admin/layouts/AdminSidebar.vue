@@ -31,31 +31,17 @@
 
         </li>
         <li class="nav-item">
-        <router-link to="/admin/verification" class="nav-link text-light">
-          <i class="fa-solid fa-layer-group"></i>
-          Verifications
-        </router-link>
-      </li>
+            <router-link to="/admin/verification" class="nav-link text-light">
+            <i class="fa-solid fa-layer-group"></i>
+            Verifications
+            </router-link>
+        </li>
         <li class="nav-item">
-        <a
-          class="nav-link d-flex gap-2 text-light"
-          data-bs-toggle="collapse"
-          href="#productMenu"
-        >
-          <i class="fa-brands fa-shopify"></i>
-          Vender
-        </a>
-
-        <div class="collapse" id="productMenu">
-          <ul class="nav flex-column ms-4">
-            <li>
-              <router-link class="nav-link text-light" to="/admin/bussiness-type">
-                Bussiness Type
-              </router-link>
-            </li>
-          </ul>
-        </div>
-      </li>
+            <router-link to="/admin/reports" class="nav-link text-light">
+            <i class="fa-solid fa-flag me-2"></i>
+            Product Reports
+            </router-link>
+        </li>
 
 
     </ul>

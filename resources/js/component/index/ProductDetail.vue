@@ -79,6 +79,12 @@
                 {{ cartMessage }}
             </div>
           </div>
+          <div class="mt-3">
+            <button class="btn btn-outline-danger" :disabled="!isUserLoggedIn || alreadyReported" @click="showReportModal = true">
+              {{ alreadyReported ? 'Already Reported' : 'Report Product' }}
+            </button>
+            <small v-if="reportMessage" class="d-block mt-2 text-muted">{{ reportMessage }}</small>
+          </div>
 
 
 
@@ -87,7 +93,7 @@
 
       <!-- ===== Comment Section ===== -->
 
-        <div class="comment-section mt-5">
+        <div class="comment-section m-5">
             <h4 class="mb-3">Comments & Ratings</h4>
 
             <div class="card p-3 mb-3">
@@ -100,9 +106,11 @@
                     </div>
                 </div>
                 <textarea v-model="newComment" class="form-control mb-2" rows="3" placeholder="Write your comment"></textarea>
-
+                <button class="btn btn-primary" @click="submitComment">Submit</button>
+                <hr>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-primary" @click="submitComment">Submit</button>
+
+
                     <button v-if="replyingTo" class="btn btn-outline-secondary" @click="cancelReply">Cancel</button>
                     <small v-if="commentMessage" class="d-block mt-2 text-muted">{{ commentMessage }}</small>
                     <small v-if="!isUserLoggedIn" class="d-block mt-2 text-danger">Login as a user to post comments/replies.</small>
@@ -154,6 +162,23 @@
           No related products found.
         </p>
       </div>
+      <div v-if="showReportModal" class="modal-backdrop-custom">
+        <div class="modal-card">
+          <h5>Report Product</h5>
+          <label class="form-label mt-3">Reason *</label>
+          <select v-model="reportForm.reason" class="form-select">
+            <option value="" disabled>Select reason</option>
+            <option v-for="reason in reportReasons" :key="reason" :value="reason">{{ reason }}</option>
+          </select>
+          <label class="form-label mt-3">Message (optional)</label>
+          <textarea v-model="reportForm.message" rows="4" class="form-control" placeholder="Add details if needed"></textarea>
+          <small v-if="reportError" class="text-danger d-block mt-2">{{ reportError }}</small>
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <button class="btn btn-light" @click="closeReportModal">Cancel</button>
+            <button class="btn btn-danger" @click="submitReport">Submit Report</button>
+          </div>
+        </div>
+      </div>
   </MainLayout>
 </template>
 
@@ -186,6 +211,13 @@ import MainLayout from './layouts/MainLayout.vue'
             const replyingTo = ref(null)
             const commentMessage = ref('')
 
+            const showReportModal = ref(false)
+            const reportMessage = ref('')
+            const reportError = ref('')
+            const alreadyReported = ref(false)
+            const reportReasons = ['Fake Product', 'Wrong Description', 'Copyright Issue', 'Offensive Content', 'Scam / Fraud', 'Other']
+            const reportForm = ref({ reason: '', message: '' })
+
             const vender = computed(() => product.value?.vender ?? null)
             const venderName = computed(() => vender.value?.verification_data?.business_name || 'Verified Vender')
             const isUserLoggedIn = computed(() => !!localStorage.getItem('token') && localStorage.getItem('role') === 'user')
@@ -195,6 +227,44 @@ import MainLayout from './layouts/MainLayout.vue'
             comments.value = data.comments || []
             averageRating.value = Number(data.average_rating || 0)
             ratingsCount.value = Number(data.ratings_count || 0)
+            }
+
+             const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` })
+
+            const fetchReportStatus = async id => {
+                if (!isUserLoggedIn.value) {
+                    alreadyReported.value = false
+                    return
+                }
+
+                try {
+                    const { data } = await axios.get(`/api/products/${id}/report-status`, { headers: authHeaders() })
+                    alreadyReported.value = !!data.already_reported
+                } catch (error) {
+                    alreadyReported.value = false
+                }
+            }
+
+            const closeReportModal = () => {
+                showReportModal.value = false
+                reportError.value = ''
+                reportForm.value = { reason: '', message: '' }
+            }
+
+            const submitReport = async () => {
+                if (!reportForm.value.reason) {
+                    reportError.value = 'Reason is required.'
+                    return
+                }
+
+                try {
+                    const { data } = await axios.post(`/api/products/${product.value?.p_id}/report`, reportForm.value, { headers: authHeaders() })
+                    reportMessage.value = data.message || 'Report submitted successfully.'
+                    alreadyReported.value = true
+                    closeReportModal()
+                } catch (error) {
+                    reportError.value = error.response?.data?.message || 'Unable to submit report.'
+                }
             }
 
             const fetchProduct = async id => {
@@ -208,6 +278,7 @@ import MainLayout from './layouts/MainLayout.vue'
                 const relRes = await axios.get(`/api/products/${id}/related`)
                 relatedProducts.value = relRes.data.products || []
                 await fetchComments(id)
+                await fetchReportStatus(id)
             }
 
             const increaseQty = () => {
@@ -323,6 +394,14 @@ import MainLayout from './layouts/MainLayout.vue'
                 cancelReply,
                 submitComment,
                 isUserLoggedIn,
+                showReportModal,
+                reportMessage,
+                reportError,
+                reportForm,
+                reportReasons,
+                alreadyReported,
+                closeReportModal,
+                submitReport,
             }
         }
     }
@@ -356,4 +435,6 @@ import MainLayout from './layouts/MainLayout.vue'
     padding: 20px;
     margin: 20px 150px;
 }
+.modal-backdrop-custom { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: grid; place-items: center; z-index: 9999; }
+.modal-card { background: #fff; width: min(520px, 92vw); border-radius: 12px; padding: 20px; }
 </style>

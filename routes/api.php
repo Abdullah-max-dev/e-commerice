@@ -11,6 +11,9 @@ use App\Http\Controllers\Api\ProductCommentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\VendorDashboardController;
 use App\Http\Controllers\Api\UserDashboardController;
+use App\Http\Controllers\Api\UserProductReportController;
+use App\Http\Controllers\Api\VendorProductReportController;
+use App\Http\Controllers\Api\AdminProductReportController;
 
 // Public routes
 Route::post('/user-signup', [AuthController::class, 'signup']);
@@ -29,7 +32,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/verification/submit', [AuthController::class, 'submitVerification']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::middleware(['user'])->group(function () {
+    Route::middleware(['role:user'])->group(function () {
         Route::get('/cart', [CartController::class, 'index']);
         Route::post('/cart', [CartController::class, 'store']);
         Route::patch('/cart/{id}', [CartController::class, 'update']);
@@ -41,11 +44,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/dashboard/orders', [UserDashboardController::class, 'recentOrders']);
         Route::patch('/dashboard/billing-address', [UserDashboardController::class, 'updateBillingAddress']);
         Route::post('/products/{id}/comments', [ProductCommentController::class, 'store']);
+        Route::post('/products/{id}/report', [UserProductReportController::class, 'store']);
+        Route::get('/products/{id}/report-status', [UserProductReportController::class, 'status']);
     });
 });
 
 // Vender routes
-Route::middleware(['auth:sanctum', 'vender'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:vendor'])->group(function () {
    Route::post('/vender/add-product', [ProductController::class, 'saveProduct'])->middleware('verified.account');
     Route::get('/vender/products', [ProductController::class, 'showProduct']);
     Route::delete('/vender/products/{id}', [ProductController::class, 'destroy']);
@@ -59,15 +64,22 @@ Route::middleware(['auth:sanctum', 'vender'])->group(function () {
     Route::get('/vender/dashboard/recent-orders', [VendorDashboardController::class, 'recentOrders']);
     Route::get('/vender/dashboard/products', [VendorDashboardController::class, 'products']);
     Route::get('/vender/dashboard/notifications', [VendorDashboardController::class, 'notifications']);
+     Route::get('/vendor/reports', [VendorProductReportController::class, 'index']);
+    Route::post('/vendor/reports/{id}/justify', [VendorProductReportController::class, 'justify']);
+    // backward-compatible typo paths
+    Route::get('/vender/reports', [VendorProductReportController::class, 'index']);
+    Route::post('/vender/reports/{id}/justify', [VendorProductReportController::class, 'justify']);
 
 });
 
 // Admin routes
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('categories', CategoryController::class);
     Route::patch('categories/{id}/toggle-top', [CategoryController::class, 'toggleTop']);
     Route::get('/admin/users', fn () => app(AuthController::class)->listByRole('user'));
     Route::get('/admin/venders', fn () => app(AuthController::class)->listByRole('vender'));
     Route::patch('/admin/users/{user}/verification', [AuthController::class, 'updateVerificationStatus']);
     Route::patch('/admin/venders/{user}/verification', [AuthController::class, 'updateVerificationStatus']);
+    Route::get('/admin/reports', [AdminProductReportController::class, 'index']);
+    Route::put('/admin/reports/{id}', [AdminProductReportController::class, 'update']);
 });

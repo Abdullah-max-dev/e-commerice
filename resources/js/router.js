@@ -20,6 +20,8 @@ import Verification from './component/admin/Verification.vue'
 import ProductDetail from './component/index/ProductDetail.vue'
 import OrderManagement from './component/vender/OrderManagement.vue'
 import OrderHistory from './component/user/OrderHistory.vue'
+import ReportedProduct from './component/vender/ReportedProduct.vue'
+import ProductReports from './component/admin/ProductReports.vue'
 
 const routes = [
     { path: '/', component: Home },
@@ -41,10 +43,12 @@ const routes = [
     { path: '/vender/view-product', component: ViewProduct, meta: { requiresAuth: true, role: 'vender' } },
     { path: '/vender/products/:id/edit', component: EditProduct, meta: { requiresAuth: true, role: 'vender' } },
     { path: '/vender/products/:id/discount', component: ProductDiscount, meta: { requiresAuth: true, role: 'vender', requiresVerified: true } },
+    { path: '/vender/reports', component: ReportedProduct, meta: { requiresAuth: true, role: 'vender' } },
 
     { path: '/admin-panel', component: AdminPannel, meta: { requiresAuth: true, role: 'admin' } },
     { path: '/admin/category', component: Category, meta: { requiresAuth: true, role: 'admin' } },
     { path: '/admin/verification', component: Verification, meta: { requiresAuth: true, role: 'admin' } },
+    { path: '/admin/reports', component: ProductReports, meta: { requiresAuth: true, role: 'admin' } },
 ]
 
 const router = createRouter({

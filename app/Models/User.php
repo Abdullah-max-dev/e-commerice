@@ -9,6 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\ProductComment;
+use App\Models\ProductReport;
 
 class User extends Authenticatable
 {
@@ -72,5 +73,14 @@ class User extends Authenticatable
     public function comments()
     {
         return $this->hasMany(ProductComment::class);
+    }
+    public function reports()
+    {
+        return $this->hasMany(ProductReport::class);
+    }
+
+    public function vendorReports()
+    {
+        return $this->hasMany(ProductReport::class, 'vendor_id');
     }
 }

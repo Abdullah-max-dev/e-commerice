@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\CartItem;
 use App\Models\OrderItem;
 use App\Models\ProductComment;
+use App\Models\ProductReport;
 
 class Product extends Model
 {
@@ -18,6 +19,8 @@ class Product extends Model
         'p_price',
         'is_top_deal',
         'c_id',
+        'report_count',
+        'is_active',
         'p_stock',
         'p_description',
         'p_image',
@@ -82,6 +85,13 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class, 'p_id', 'p_id');
     }
+
+     public function reports()
+    {
+        return $this->hasMany(ProductReport::class, 'product_id', 'p_id');
+    }
+
+    
     public function comments()
     {
         return $this->hasMany(ProductComment::class, 'product_id', 'p_id');

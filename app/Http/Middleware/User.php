@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 
 
+
 class User
 {
     public function handle(Request $request, Closure $next): Response

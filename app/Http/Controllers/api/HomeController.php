@@ -14,6 +14,7 @@ class HomeController extends Controller
             ->whereHas('category', function ($q) {
                 $q->where('is_popular', 1);
             })
+            ->where('is_active', true)
             ->latest()
             ->take(8)
             ->get()
@@ -26,8 +27,10 @@ class HomeController extends Controller
      public function productDetail($id)
     {
         $product = Product::with(['category', 'discount', 'mainImage','images','vender' ])
+            ->where('is_active', true)
             ->findOrFail($id);
         $averageRating = ProductComment::where('product_id', $product->p_id)
+
             ->whereNull('parent_id')
             ->avg('rating');
 
@@ -40,10 +43,12 @@ class HomeController extends Controller
 
     public function relatedProducts($id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::where('is_active', true)->findOrFail($id);
 
         $baseQuery = Product::with(['category', 'discount', 'mainImage', 'images', 'vender'])
+            ->where('is_active', true)
             ->where('p_id', '!=', $product->p_id)
+            ->where('is_active', true)
             ->latest();
 
         $products = (clone $baseQuery)
@@ -78,6 +83,7 @@ class HomeController extends Controller
     {
         $products = Product::with(['category', 'discount', 'mainImage','images','vender' ])
             ->where('is_top_deal', 1)
+            ->where('is_active', true)
             ->latest()
             ->take(8)
             ->get()

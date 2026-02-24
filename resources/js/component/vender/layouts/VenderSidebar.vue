@@ -53,6 +53,12 @@
           Orders
         </router-link>
       </li>
+      <li class="nav-item">
+        <router-link to="/vender/reports" class="nav-link text-light">
+          <i class="fa-solid fa-flag me-2"></i>
+          Reported Products
+        </router-link>
+      </li>
        <li class="nav-item">
         <router-link to="/vender/settings" class="nav-link text-light">
           <i class="fa-solid fa-gear me-2"></i>
