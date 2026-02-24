@@ -1,13 +1,15 @@
 import { createStore } from 'vuex'
 import category from './modules/category'
 import product from './modules/product'
+import adminDashboard from './modules/adminDashboard'
 
 
 
 const Store = createStore({
     modules: {
         category,
-        product
+        product,
+        adminDashboard
     },
     state() {
         return {

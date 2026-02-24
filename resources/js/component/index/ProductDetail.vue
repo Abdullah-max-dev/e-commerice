@@ -68,19 +68,19 @@
           <div class="cart-section mt-4">
 
             <div class="qty-control">
-              <button @click="decreaseQty">-</button>
+              <button @click="decreaseQty" class="btn btn-sm btn-danger rounded-3 "><i class="fa-solid fa-minus"></i></button>
               <input type="number" v-model.number="quantity" min="1" />
-              <button @click="increaseQty">+</button>
+              <button @click="increaseQty" class="btn btn-sm btn-success rounded-3 "><i class="fa-solid fa-plus"></i></button>
             </div>
 
-            <button class="btn-add-cart" :disabled="product.p_stock <= 0" @click="addToCart">🛒 Add to Cart</button>
+            <button class="btn btn-md btn-cart text-white" :disabled="product.p_stock <= 0" @click="addToCart">🛒 Add to Cart</button>
+          </div>
+            <div v-if="cartMessage" class="badge">
+                {{ cartMessage }}
+            </div>
           </div>
 
-          </div>
 
-          <div v-if="cartMessage" class="cart-message mt-3">
-            {{ cartMessage }}
-          </div>
 
         </div>
       </div>
@@ -338,15 +338,22 @@ import MainLayout from './layouts/MainLayout.vue'
 .vendor-box { display: flex; align-items: center; gap: 10px; }
 .vendor-logo { width: 50px; height: 50px; object-fit: cover; border-radius: 999px; }
 .current-price { font-size: 1.3rem; font-weight: 700; margin-right: 8px; }
-.old-price { text-decoration: line-through; color: #6b7280; }
-.stock-badge.in-stock { color: #166534; }
-.stock-badge.out-stock { color: #991b1b; }
+.old-price { text-decoration: line-through; color: #6b7280 !important; }
+.stock-badge.in-stock { color: #166534 !important; }
+.stock-badge.out-stock { color: #991b1b !important; }
 .qty-control { display: inline-flex; gap: 8px; margin-right: 10px; }
 .qty-control input { width: 70px; }
 .star-picker { display: flex; gap: 6px; }
 .star-btn { border: none; background: transparent; font-size: 24px; color: #9ca3af; }
-.star-btn.active { color: #f59e0b; }
+.star-btn.active { color: #f59e0b !important; }
 .comment-list { display: grid; gap: 12px; }
 .related-card { border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
 .related-img { width: 100%; height: 180px; object-fit: cover; }
+.btn-cart{background-color: #28a745}
+.badge{
+    background-color: #b7f7c6;
+    color: #166534;
+    padding: 20px;
+    margin: 20px 150px;
+}
 </style>

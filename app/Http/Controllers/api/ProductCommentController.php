@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\ProductComment;
+use Illuminate\Validation\Validator;
+use Illuminate\Validation\Rule;
+
 
 use Illuminate\Http\Request;
 
@@ -29,7 +34,7 @@ class ProductCommentController extends Controller
         product::findOrFail($productId);
 
         $validate = $req->validate([
-            'parent_id' =>  ['nullable', 'exist:product_comments','id'],
+            'parent_id' =>  ['nullable', 'exists:product_comments,id'],
             'comment'   =>  ['required', 'string', 'min:2', 'max:20000'],
             'rating'    =>  ['nullable', 'integer', rule::in([1,2,3,4,5])],
         ]);
