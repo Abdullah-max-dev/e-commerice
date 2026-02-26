@@ -33,10 +33,6 @@
         <h5>Update Report #{{ selected.id }}</h5>
         <select class="form-select mt-3" v-model="form.status"><option value="resolved">Resolved</option><option value="rejected">Rejected</option></select>
         <textarea class="form-control my-3" rows="4" v-model="form.admin_note" placeholder="Admin note"></textarea>
-        <div class="form-check mb-3">
-          <input id="deactivate" class="form-check-input" type="checkbox" v-model="form.deactivate_product" />
-          <label class="form-check-label" for="deactivate">Deactivate product if resolved</label>
-        </div>
         <p v-if="message" class="small text-muted">{{ message }}</p>
         <div class="d-flex justify-content-end gap-2"><button class="btn btn-light" @click="selected=null">Cancel</button><button class="btn btn-success" @click="save">Save</button></div>
       </div>
@@ -56,7 +52,7 @@ export default {
     const status = ref('')
     const selected = ref(null)
     const message = ref('')
-    const form = reactive({ status: 'resolved', admin_note: '', deactivate_product: false })
+    const form = reactive({ status: 'resolved', admin_note: '' })
     const headers = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` })
 
     const fetchReports = async () => {
@@ -68,7 +64,6 @@ export default {
       selected.value = r
       form.status = r.status === 'rejected' ? 'rejected' : 'resolved'
       form.admin_note = r.admin_note || ''
-      form.deactivate_product = false
       message.value = ''
     }
 

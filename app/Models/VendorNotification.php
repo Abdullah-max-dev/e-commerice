@@ -12,11 +12,17 @@ class VendorNotification extends Model
         'title',
         'message',
         'is_read',
+        'is_archived',
+        'archived_at',
+        'read_at',
         'meta',
     ];
 
     protected $casts = [
         'is_read' => 'boolean',
+        'is_archived' => 'boolean',
+        'archived_at' => 'datetime',
+        'read_at' => 'datetime',
         'meta' => 'array',
     ];
 

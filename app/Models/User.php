@@ -10,6 +10,8 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\ProductComment;
 use App\Models\ProductReport;
+use App\Models\VendorNotification;
+use App\Models\UserNotification;
 
 class User extends Authenticatable
 {
@@ -82,5 +84,14 @@ class User extends Authenticatable
     public function vendorReports()
     {
         return $this->hasMany(ProductReport::class, 'vendor_id');
+    }
+    public function vendorNotifications()
+    {
+        return $this->hasMany(VendorNotification::class, 'vendor_id');
+    }
+
+    public function userNotifications()
+    {
+        return $this->hasMany(UserNotification::class);
     }
 }

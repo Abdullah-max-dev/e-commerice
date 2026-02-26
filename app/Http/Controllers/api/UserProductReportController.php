@@ -10,6 +10,47 @@ use Illuminate\Http\Request;
 
 class UserProductReportController extends Controller
 {
+   public function index(Request $request){
+
+   $reports = ProductReport::query()
+              ->ith(['product:p_id,p_name'])
+              ->where('user_id',$request->user()->id)
+              ->latest('id')
+              ->paginate(20)
+              ->through(fn(ProductReport $report) =>[
+                   'id'            =>  $report->is,
+                   'product_name'  =>  $report->product?->p_name,
+                   'reason'        =>  $report->reason,
+                   'message'       =>  $report->message,
+                   'status'        =>  $report->status,
+                   'is_read'       =>  (bool) $report->reporter_read_at,
+                   'created_at'    =>  optional($report->created_at)->toDateTimeString(),
+                ]);
+
+                return response()->json([
+                    'data'          =>   $report,
+                    'unread_count'  =>   ProductReport::query()->where('user_id',$requets->user()->id)
+                                                               ->whereNull('reporter_read_at')
+                                                               ->count()
+                ]);
+
+   }
+
+    public function markAsRead(Request $requets, int $id){
+        $report = ProductReport::query()
+        ->where('id',$id)
+        ->where('user_id',$request->user()->id)
+        ->firstOrFail();
+        if(!$report->reporter_read_at){
+            $report->update(['reporter_read_at' => now()]);
+        }
+        return response()->json([
+            'message'  =>  'report Marked as read,'
+        ]);
+
+
+    }
+
     public function store(Request $request, int $id)
     {
         $validated = $request->validate([
@@ -36,18 +77,23 @@ class UserProductReportController extends Controller
             'reason' => $validated['reason'],
             'message' => $validated['message'] ?? null,
             'status' => 'pending',
+            'vedor_warning_sent'  =>true,
         ]);
 
         $product->increment('report_count');
 
         VendorNotification::create([
-            'vendor_id' => $product->v_id,
-            'type' => 'product_reported',
-            'title' => 'Product report received',
-            'message' => "Your product {$product->p_name} has been reported.",
+            'type' => 'product_report_warning',
+            'title' => 'Warning: Product Report Received',
+            'message' => "Your product {$product->p_name} was reported. Please review report details.",
             'meta' => [
                 'product_id' => $product->p_id,
+                'product_name' => $product->p_name,
                 'report_id' => $report->id,
+                'reason' => $report->reason,
+                'report_comment' => $report->message,
+                'status' => $report->status,
+                'highlight' => true,
             ],
         ]);
 

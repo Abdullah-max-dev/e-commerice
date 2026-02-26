@@ -3,6 +3,7 @@
     <a class="navbar-brand fw-bold" href="#">User Panel</a>
 
     <div class="ms-auto d-flex align-items-center gap-3">
+       <MessageInbox />
       <span class="text-light">Hi, Abdullah</span>
 
       <img
@@ -21,7 +22,9 @@
 <script>
     import { useRouter } from 'vue-router';
     import { useStore } from 'vuex';
+    import MessageInbox from '../../shared/MessageInbox.vue';
 export default {
+    components: { MessageInbox },
      setup(){
         let store = useStore();
         const router = useRouter();

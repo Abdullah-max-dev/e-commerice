@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\UserDashboardController;
 use App\Http\Controllers\Api\UserProductReportController;
 use App\Http\Controllers\Api\VendorProductReportController;
 use App\Http\Controllers\Api\AdminProductReportController;
+use App\Http\Controllers\Api\VendorMessageController;
+
 
 // Public routes
 Route::post('/user-signup', [AuthController::class, 'signup']);
@@ -46,6 +48,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/products/{id}/comments', [ProductCommentController::class, 'store']);
         Route::post('/products/{id}/report', [UserProductReportController::class, 'store']);
         Route::get('/products/{id}/report-status', [UserProductReportController::class, 'status']);
+         Route::get('/user/reports', [UserProductReportController::class, 'index']);
+        Route::post('/user/reports/read/{id}', [UserProductReportController::class, 'markAsRead']);
     });
 });
 
@@ -66,6 +70,10 @@ Route::middleware(['auth:sanctum', 'role:vendor'])->group(function () {
     Route::get('/vender/dashboard/notifications', [VendorDashboardController::class, 'notifications']);
      Route::get('/vendor/reports', [VendorProductReportController::class, 'index']);
     Route::post('/vendor/reports/{id}/justify', [VendorProductReportController::class, 'justify']);
+    Route::get('/vendor/messages', [VendorMessageController::class, 'index']);
+    Route::post('/vendor/messages/read/{id}', [VendorMessageController::class, 'markAsRead']);
+    Route::post('/vendor/messages/archive/{id}', [VendorMessageController::class, 'archive']);
+    Route::delete('/vendor/messages/{id}', [VendorMessageController::class, 'destroy']);
     // backward-compatible typo paths
     Route::get('/vender/reports', [VendorProductReportController::class, 'index']);
     Route::post('/vender/reports/{id}/justify', [VendorProductReportController::class, 'justify']);
@@ -82,4 +90,5 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::patch('/admin/venders/{user}/verification', [AuthController::class, 'updateVerificationStatus']);
     Route::get('/admin/reports', [AdminProductReportController::class, 'index']);
     Route::put('/admin/reports/{id}', [AdminProductReportController::class, 'update']);
+    Route::post('/admin/reports/warn/{vendor_id}', [AdminProductReportController::class, 'warnVendor']);
 });

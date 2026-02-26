@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use App\Models\ProductReport;
 use App\Models\UserNotification;
+use App\Models\VenderNotification;
 use Illuminate\Http\Request;
 
 class AdminProductReportController extends Controller
@@ -30,7 +30,6 @@ class AdminProductReportController extends Controller
         $validated = $request->validate([
             'status' => ['required', 'in:resolved,rejected'],
             'admin_note' => ['nullable', 'string', 'max:2000'],
-            'deactivate_product' => ['sometimes', 'boolean'],
         ]);
 
         $report = ProductReport::query()->with('product')->findOrFail($id);
@@ -40,10 +39,6 @@ class AdminProductReportController extends Controller
             'admin_note' => $validated['admin_note'] ?? null,
             'resolved_at' => now(),
         ]);
-
-        if ($validated['status'] === 'resolved' && ($validated['deactivate_product'] ?? false) && $report->product) {
-            Product::query()->where('p_id', $report->product_id)->update(['is_active' => false]);
-        }
 
         UserNotification::create([
             'user_id' => $report->user_id,
@@ -61,5 +56,34 @@ class AdminProductReportController extends Controller
             'message' => 'Report updated successfully.',
             'report' => $report->fresh(['product:p_id,p_name,is_active', 'user:id,name', 'vendor:id,name']),
         ]);
+    }
+    public function warnVender(Request $request, int $venderId){
+        $validated = $request->validate([
+            'report_id'  =>  ['nullable','integer','exist:product_reports,id'],
+            'message'    =>  ['nullable','string','max:2000'],
+        ]);
+        $report = null;
+        if(!empty($validated['report_id'])){
+            $report = ProductReport::query()->with('prodyct:p_id.p_name')->findOrFail($validated['report_id']);
+        }
+
+        VenderNotification::create([
+            'vender_id'   =>   $venderId,
+            'type'        =>   'admin_vender_warning',
+            'title'       =>    'Admin warning regarding product reports',
+            'message'     =>   $validated['message'] ?? 'you have received a warning based on product report activity.',
+            'meta'        =>   [
+                'product_id'      =>   $report?->product_id,
+                'product_name'    =>   $report?->product?->p_name,
+                'report_id'       =>   $report?->id,
+                'report_comment'  =>   $report?->message,
+                'highlight'       =>true,
+            ],
+         ]);
+         if($report&&(int)$report->vender_id === $venderId){
+            $report->update(['vender_warning_sent'  =>  true]);
+         }
+         return response()->json(['message'  =>  'warning message sent to vendor indox.']);
+
     }
 }
