@@ -137,6 +137,26 @@ const ProductCard = {
             discount: product.discount || false,
             final_price: product.final_price ?? product.p_price
             }))
+        const getDiscountPercent = (product) => {
+            if (!product?.discount || !product?.p_price) {
+                return 0
+            }
+
+            return Math.round(((product.p_price - product.final_price) / product.p_price) * 100)
+        }
+
+        const getDealTag = (index) => dealTags[index % dealTags.length]
+
+        const addRecentView = (product) => {
+            if (!product?.p_id) {
+                return
+            }
+
+            recentViews.value = [
+                product,
+                ...recentViews.value.filter(item => item.p_id !== product.p_id)
+            ].slice(0, 8)
+        }
 
         const getTopDeals = async () => {
             const { data } = await axios.get('/api/top-deals', {
