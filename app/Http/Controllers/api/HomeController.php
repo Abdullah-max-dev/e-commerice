@@ -82,18 +82,41 @@ class HomeController extends Controller
 
     public function topDeals()
     {
-        $products = Product::with(['category', 'discount', 'mainImage','images','vender' ])
-            ->where('is_top_deal', 1)
+        $limit = max(1, min((int) request('limit', 4), 40));
+
+        $products = Product::with(['category', 'discount', 'mainImage', 'images', 'vender'])            ->where('is_top_deal', 1)
             ->where('is_active', true)
             ->latest()
-            ->take(8)
+            ->take($limit)
             ->get()
-            ->map(fn($product) => $this->formatProductImage($product));
+            ->map(fn ($product) => $this->formatProductImage($product));
 
         return response()->json([
-            'products' => $products
+            'products' => $products,
         ]);
     }
+
+    public function adminSelectedCategories(){
+        $categories = \App\Models\Category::query()
+            ->when('is_popular',1)
+            ->latest('c_id')
+            ->get(['c_id','c_name','is_popular']);
+            return response()->json(['categories' => $categories]);
+    }
+
+    public function productByCategory(int $CategoryId){
+        $product= Product::with(['category','discount','mainImage','image','vender'])
+                    ->where('c_id',$categoryId)
+                    ->where('is_active',true)
+                    ->latest()
+                    ->take(24)
+                    ->get()
+                    ->map(fn($product) => $this->formateProductImage($product));
+                    return response()->json([
+                        'product' => $products,
+                    ]);
+    }
+
     private function formatProductImage($product)
     {
 

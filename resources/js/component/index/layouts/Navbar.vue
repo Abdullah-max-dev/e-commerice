@@ -55,7 +55,7 @@
                         </router-link>
                         </li>
 
-                        
+
                         <li><hr class="dropdown-divider" /></li>
 
                         <li>
@@ -70,19 +70,25 @@
             </div>
         </div>
         </nav>
-
-        <!-- Feature Navbar -->
-        <nav class="navbar navbar-expand-lg  shadow p-3  bg-body-tertiary rounded">
-        <div class="container-fluid">
-
-            <div class="collapse navbar-collapse justify-content-center  gap-5" id="navbarNavAltMarkup">
-
-
-
-
-
-
-
+        <nav class="navbar navbar-expand-lg shadow p-3 bg-body-tertiary rounded">
+          <div class="container-fluid">
+            <div class="d-flex justify-content-center gap-2 flex-wrap w-100" id="navbarNavAltMarkup">
+              <button
+                class="btn btn-sm"
+                :class="!selectedCategory ? 'btn-dark' : 'btn-outline-dark'"
+                @click="selectCategory(null)"
+              >
+                All Categories
+              </button>
+              <button
+                v-for="category in categories"
+                :key="category.c_id"
+                class="btn btn-sm"
+                :class="Number(selectedCategory) === Number(category.c_id) ? 'btn-dark' : 'btn-outline-dark'"
+                @click="selectCategory(category.c_id)"
+              >
+                {{ category.c_name }}
+              </button>
             </div>
         </div>
         </nav>
@@ -91,22 +97,60 @@
 </template>
 
 <script>
-    import { useRouter } from 'vue-router';
+    import axios from 'axios';
+     import { computed, onMounted, ref } from 'vue'
+    import { useRoute, useRouter } from 'vue-router';
     import { useStore } from 'vuex';
     export default {
-        setup(){
-            let store = useStore();
-            const router = useRouter();
-            function logout(){
-                store.dispatch('removeToken');
-                localStorage.removeItem('token');
+        setup() {
+    const store = useStore()
+    const router = useRouter()
+    const route = useRoute()
 
-                router.push({path:'/'})
-            }
-            return{
-                logout
-            }
+    const categories = ref([])
+
+    const selectedCategory = computed(() => route.query.category || null)
+
+    const fetchCategories = async () => {
+        try {
+            const { data } = await axios.get('/api/admin-selected-categories')
+            categories.value = data.categories || []
+        } catch (error) {
+            categories.value = []
         }
+    }
+
+    const selectCategory = (categoryId) => {
+        if (route.path !== '/') {
+            router.push({
+                path: '/',
+                query: categoryId ? { category: categoryId } : {}
+            })
+            return
+        }
+
+        router.push({
+            query: categoryId
+                ? { ...route.query, category: categoryId }
+                : {}
+        })
+    }
+
+    const logout = () => {
+        store.dispatch('removeToken')
+        localStorage.removeItem('token')
+        router.push('/')
+    }
+
+    onMounted(fetchCategories)
+
+    return {
+        logout,
+        categories,
+        selectedCategory,
+        selectCategory
+    }
+}
     }
 </script>
 

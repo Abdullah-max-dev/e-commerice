@@ -31,12 +31,12 @@
                   <h6>Amount</h6>
                   <p class="mb-2"><strong>Total:</strong> Rs {{ order.total_amount }}</p>
                   <div class="d-flex gap-2 flex-wrap">
-                    <select class="form-select" v-model="order.statusDraft">
+                    <select class="form-select" v-model="order.statusDraft" :disabled="order.is_locked">
                       <option v-for="s in allowedStatuses" :key="s" :value="s">{{ s }}</option>
                     </select>
-                    <button class="btn btn-primary" @click="updateStatus(order, order.statusDraft)">Update</button>
-                    <button class="btn btn-outline-danger" @click="updateStatus(order, 'cancelled')">Cancel Order</button>
-                  </div>
+                    <button class="btn btn-primary" :disabled="order.is_locked || order.statusDraft === order.status" @click="updateStatus(order, order.statusDraft)">Update</button>
+                    <button class="btn btn-outline-danger" :disabled="order.is_locked" @click="updateStatus(order, 'cancelled')">Cancel Order</button>
+                    <small v-if="order.is_locked" class="text-danger">Order is locked (final status).</small>                  </div>
                 </div>
               </div>
 
@@ -79,7 +79,7 @@ export default {
     const loading = ref(true)
     const error = ref('')
     const orders = ref([])
-    const allowedStatuses = ['pending', 'processing', 'shipped', 'delivered']
+    const allowedStatuses = ['pending', 'processing', 'shipped', 'delivered', 'completed']
 
     const authHeaders = () => ({
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -100,9 +100,10 @@ export default {
 
     const updateStatus = async (order, status) => {
       try {
-        await axios.patch(`/api/vender/orders/${order.id}/status`, { status }, authHeaders())
-        order.status = status
-        order.statusDraft = status === 'cancelled' ? 'pending' : status
+        const { data } = await axios.patch(`/api/vender/orders/${order.id}/status`, { status }, authHeaders())
+        order.status = data.order?.status || status
+        order.is_locked = Boolean(data.order?.is_locked)
+        order.statusDraft = order.status
       } catch (err) {
         alert(err.response?.data?.message || 'Failed to update order status.')
       }

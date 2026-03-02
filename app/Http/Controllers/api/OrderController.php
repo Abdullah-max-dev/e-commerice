@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     private const USER_ALLOWED_STATUS = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-    private const VENDER_ALLOWED_STATUS = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-
+    private const VENDER_ALLOWED_STATUS = ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'completed'];
+    private const FINAL_STATUSES = ['cancelled', 'completed'];
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -73,7 +73,7 @@ class OrderController extends Controller
 
     public function userOrders(Request $request)
     {
-        $orders = Order::with(['orderItems.product'])
+        $orders = Order::with(['orderItems.product', 'reports'])
             ->where('user_id', $request->user()->id)
             ->latest()
             ->get()
@@ -100,6 +100,7 @@ class OrderController extends Controller
                     'id' => $order->id,
                     'order_number' => $order->order_number,
                     'status' => $order->status,
+                    'is_locked' => in_array($order->status, self::FINAL_STATUSES, true),
                     'payment_method' => $order->payment_method,
                     'placed_at' => optional($order->created_at)->toDateTimeString(),
                     'customer' => [
@@ -128,7 +129,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled,completed',
         ]);
 
         $venderId = $request->user()->id;
@@ -136,6 +137,9 @@ class OrderController extends Controller
 
         if (! $belongsToVender) {
             return response()->json(['message' => 'Order not found.'], 404);
+        }
+        if(in_array($order->status,self::FINAL_STATUSES,true)){
+            return response()->json(['message' => 'Order is locked and cannot be updated'],422);
         }
 
         if (! in_array($validated['status'], self::VENDER_ALLOWED_STATUS, true)) {
@@ -145,11 +149,12 @@ class OrderController extends Controller
         $order->update(['status' => $validated['status']]);
 
         return response()->json([
-            'message' => 'Order status updated successfully.',
-            'order' => [
-                'id' => $order->id,
+            'message'          => 'Order status updated successfully.',
+            'order'            => [
+                'id'           => $order->id,
                 'order_number' => $order->order_number,
-                'status' => $order->status,
+                'status'       => $order->status,
+                'is_order'     => in_array($order->status, self::FINAL_STATUSES,true)
             ],
         ]);
     }
@@ -178,7 +183,7 @@ class OrderController extends Controller
                 'quantity' => (int) $item->quantity,
                 'line_total' => round($lineTotal, 2),
             ];
-        })->values()->all();;
+        })->values()->all();
 
         return [$items, $subtotal, $total];
     }
@@ -195,29 +200,33 @@ class OrderController extends Controller
     {
         return [
             'id' => $order->id,
-            'order_number' => $order->order_number,
-            'status' => $order->status,
-            'payment_method' => $order->payment_method,
-            'subtotal' => (float) $order->subtotal,
-            'discount' => (float) $order->discount,
-            'total' => (float) $order->total,
-            'placed_at' => optional($order->created_at)->toDateTimeString(),
-            'customer' => [
-                'name' => $order->customer_name,
-                'email' => $order->customer_email,
-                'phone' => $order->customer_phone,
-                'address' => $order->customer_address,
+            'order_number'  => $order->order_number,
+            'status'        => $order->status,
+            'is_locked'     => in_array($order->status, self::FINAL_STATUSES,true),
+            'payment_method'=> $order->payment_method,
+            'subtotal'      => (float) $order->subtotal,
+            'discount'      => (float) $order->discount,
+            'total'         => (float) $order->total,
+            'placed_at'     => optional($order->created_at)->toDateTimeString(),
+            'customer'      => [
+                'name'      => $order->customer_name,
+                'email'     => $order->customer_email,
+                'phone'     => $order->customer_phone,
+                'address'   => $order->customer_address,
             ],
-            'products' => $order->orderItems->map(function (OrderItem $item) {
+            'products'      => $order->orderItems->map(function (OrderItem $item) {
                 return [
-                    'id' => $item->id,
+                    'id'    => $item->id,
                     'product_id' => $item->p_id,
-                    'name' => $item->product_name,
+                    'name'  => $item->product_name,
                     'quantity' => (int) $item->quantity,
                     'unit_price' => (float) $item->unit_price,
                     'line_total' => (float) $item->line_total,
                 ];
             })->values(),
+            'already_reported' => $order->relatonLoaded('reports') ? $order->reports
+                                                                ->where('user_id'->user_id)
+                                                                ->isNotEmpty() : false
         ];
     }
 }

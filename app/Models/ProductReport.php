@@ -27,15 +27,15 @@ namespace App\Models;
          'status',
          'admin_note',
          'vendor_justification',
-+        'vendor_warning_sent',
-+        'reporter_read_at',
+         'vendor_warning_sent',
+         'reporter_read_at',
          'resolved_at',
      ];
 
      protected $casts = [
-+        'vendor_warning_sent' => 'boolean',
-+        'reporter_read_at' => 'datetime',
-         'resolved_at' => 'datetime',
+        'vendor_warning_sent' => 'boolean',
+        'reporter_read_at' => 'datetime',
+        'resolved_at' => 'datetime',
      ];
 
      public function product()

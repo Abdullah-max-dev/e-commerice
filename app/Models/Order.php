@@ -38,4 +38,7 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    public function reports(){
+        return $this->hasMany(OrderReport::class);
+    }
 }

@@ -37,6 +37,28 @@
                                 </div>
                             </div>
 
+                            <div class="mt-3">
+                              <button
+                                class="btn btn-outline-danger btn-sm"
+                                :disabled="order.already_reported || reportingOrderId === order.id"
+                                @click="toggleReportForm(order.id)"
+                              >
+                                {{ order.already_reported ? 'Already Reported' : (reportingOrderId === order.id ? 'Close Report' : 'Report Order') }}
+                              </button>
+                            </div>
+
+                            <div v-if="reportingOrderId === order.id && !order.already_reported" class="mt-3">
+                              <textarea
+                                v-model="reportMessage"
+                                class="form-control mb-2"
+                                rows="3"
+                                placeholder="Describe your issue with this order"
+                              />
+                              <button class="btn btn-danger btn-sm" :disabled="submittingReport" @click="submitReport(order)">
+                                {{ submittingReport ? 'Submitting...' : 'Submit Report' }}
+                              </button>
+                            </div>
+
                             <div class="table-responsive">
                                 <table class="table table-sm align-middle mb-0">
                                 <thead>
@@ -76,6 +98,9 @@ export default {
     const loading = ref(true)
     const error = ref('')
     const orders = ref([])
+    const reportingOrderId = ref(null)
+    const reportMessage = ref('')
+    const submittingReport = ref(false)
 
     const fetchOrders = async () => {
       loading.value = true
@@ -106,6 +131,40 @@ export default {
       return new Date(value).toLocaleString()
     }
 
+     const toggleReportForm = (orderId) => {
+      if (reportingOrderId.value === orderId) {
+        reportingOrderId.value = null
+        reportMessage.value = ''
+        return
+      }
+
+      reportingOrderId.value = orderId
+      reportMessage.value = ''
+    }
+
+    const submitReport = async (order) => {
+      if (!reportMessage.value.trim()) {
+        alert('Please enter a report message.')
+        return
+      }
+
+      submittingReport.value = true
+
+      try {
+        const token = localStorage.getItem('token')
+        await axios.post(`/api/orders/${order.id}/report`, { message: reportMessage.value.trim() }, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        order.already_reported = true
+        reportingOrderId.value = null
+        reportMessage.value = ''
+      } catch (err) {
+        alert(err.response?.data?.message || 'Unable to submit order report.')
+      } finally {
+        submittingReport.value = false
+      }
+    }
+
     let intervalId = null
 
     onMounted(() => {
@@ -117,8 +176,7 @@ export default {
       if (intervalId) clearInterval(intervalId)
     })
 
-    return { loading, error, orders, statusBadge, formatDate }
-  },
+    return { loading, error, orders, statusBadge, formatDate, reportingOrderId, reportMessage, submittingReport, toggleReportForm, submitReport }  },
 }
 </script>
 

@@ -15,9 +15,12 @@ use App\Http\Controllers\Api\UserProductReportController;
 use App\Http\Controllers\Api\VendorProductReportController;
 use App\Http\Controllers\Api\AdminProductReportController;
 use App\Http\Controllers\Api\VendorMessageController;
+use App\Http\Controllers\Api\OrderReportController;
 
 
 // Public routes
+Route::get('/admin-selected-categories', [HomeController::class, 'adminSelectedCategories']);
+Route::get('/categories/{categoryId}/products', [HomeController::class, 'productsByCategory']);
 Route::post('/user-signup', [AuthController::class, 'signup']);
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -42,6 +45,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/cart', [CartController::class, 'clear']);
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders', [OrderController::class, 'userOrders']);
+        Route::post('/orders/{order}/report', [OrderReportController::class, 'store']);
         Route::get('/dashboard/summary', [UserDashboardController::class, 'summary']);
         Route::get('/dashboard/orders', [UserDashboardController::class, 'recentOrders']);
         Route::patch('/dashboard/billing-address', [UserDashboardController::class, 'updateBillingAddress']);
@@ -91,4 +95,5 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/reports', [AdminProductReportController::class, 'index']);
     Route::put('/admin/reports/{id}', [AdminProductReportController::class, 'update']);
     Route::post('/admin/reports/warn/{vendor_id}', [AdminProductReportController::class, 'warnVendor']);
+    Route::get('/admin/order-reports', [OrderReportController::class, 'index']);
 });
