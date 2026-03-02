@@ -78,6 +78,7 @@
     import { reactive , ref } from 'vue';
     import { useRouter } from 'vue-router';
     import axios from 'axios';
+    import { extractApiErrors } from '../../../../utils/apiErrors';
 
 
     export default{
@@ -111,11 +112,7 @@
                     }
 
                 } catch (e) {
-                    if (e.response?.data) {
-                        errors.value = Object.values(e.response.data.message).flat()
-                    } else {
-                        errors.value = ['Something went wrong']
-                    }
+                    errors.value = extractApiErrors(e, 'Something went wrong')
                 }
 
 

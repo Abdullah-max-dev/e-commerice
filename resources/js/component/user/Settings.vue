@@ -42,6 +42,7 @@
 
 <script>
 import axios from 'axios'
+import { extractApiErrors } from '../../utils/apiErrors'
 import UserMain from './layouts/UserMain.vue'
 import { computed, reactive, ref } from 'vue'
 import { useStore } from 'vuex'
@@ -88,11 +89,7 @@ export default {
         })
         store.dispatch('setVerificationStatus', res.data.data.verification_status)
       } catch (e) {
-        if (e.response?.data?.message) {
-          errors.value = Object.values(e.response.data.message).flat()
-        } else {
-          errors.value = ['Failed to submit verification form.']
-        }
+        errors.value = extractApiErrors(e, 'Failed to submit verification form.')
       }
     }
 

@@ -62,6 +62,7 @@
         import { useRouter } from 'vue-router';
         import axios from 'axios';
         import { useStore } from "vuex";
+        import { extractApiErrors } from '../../../../utils/apiErrors';
 
         export default{
             components:{
@@ -92,27 +93,22 @@
                             // ⚡ reactive
                             store.dispatch('setToken', data)
 
-                        if (res.data.data.role === 'admin') {
-                            router.push('/admin-panel')
-                        }
-                        else if (res.data.data.role === 'vender') {
-                            router.push('/vender-panel')
-                        }else{
-                           router.push('/user-panel')
-                        }
+                            if (res.data.data.role === 'admin') {
+                                router.push('/admin-panel')
+                            }
+                            else if (res.data.data.role === 'vender') {
+                                router.push('/vender-panel')
+                            }else{
+                            router.push('/user-panel')
+                            }
 
                         }
 
                     } catch (e) {
-                        if (e.response && e.response.data && e.response.data.message) {
-                            errors.value = Object.values(e.response.data.message).flat()
-                        } else {
-                            errors.value = ['Something went wrong']
-                        }
+                        errors.value = extractApiErrors(e, 'Something went wrong')                    }
+
+
                     }
-
-
-                }
                 return {
                     form,
                     login,
