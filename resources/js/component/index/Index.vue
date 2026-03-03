@@ -21,9 +21,13 @@
             <div class="container">
                 <h1>Selected Category Products</h1>
                 <div class="row row-cols-1 row-cols-md-4 g-2 mt-2">
-                    <div v-for="product in categoryProducts" :key="`cat-${product.p_id}`" class="col d-flex">
+                    <div v-for="product in visibleCategoryProducts" :key="`cat-${product.p_id}`" class="col d-flex">
                         <ProductCard :product="product" @open="addRecentView" />
                     </div>
+                </div>
+                <div v-if="categoryProducts.length > 4" class="mt-3 d-flex gap-2">
+                    <button class="btn btn-outline-success btn-sm" @click="showMoreCategoryProducts" :disabled="categoryVisibleCount >= categoryProducts.length">Show More</button>
+                    <button class="btn btn-outline-secondary btn-sm" @click="resetCategoryProducts" :disabled="categoryVisibleCount === 4">Show Less</button>
                 </div>
                 <div v-if="!categoryProducts.length" class="text-muted mt-2">No products found for the selected category.</div>
             </div>
@@ -41,8 +45,8 @@
                         <div v-if="!topDeals.length" class="text-muted">No top deals available right now.</div>
                     </div>
                     <div v-if="topDeals.length > 4" class="mt-3 d-flex gap-2">
-                        <button class="btn btn-outline-success btn-sm" @click="showMoreDeals" :disabled="topDealsVisibleCount >= topDeals.length">More</button>
-                        <button class="btn btn-outline-secondary btn-sm" @click="resetDeals" :disabled="topDealsVisibleCount === 4">Less</button>
+                         <button class="btn btn-outline-success btn-sm" @click="showMoreDeals" :disabled="topDealsVisibleCount >= topDeals.length">Show More</button>
+                        <button class="btn btn-outline-secondary btn-sm" @click="resetDeals" :disabled="topDealsVisibleCount === 4">Show Less</button>
                     </div>
                 </div>
             </section>
@@ -51,9 +55,12 @@
                 <div class="container">
                     <h1>Popular Categories</h1>
                     <div class="row row-cols-1 row-cols-md-4 g-2 mt-2">
-                        <div v-for="product in popularCategoryProducts" :key="`popular-${product.p_id}`" class="col d-flex">
-                            <ProductCard :product="product" @open="addRecentView" />
+                        <div v-for="product in visiblePopularCategoryProducts" :key="`popular-${product.p_id}`" class="col d-flex">                            <ProductCard :product="product" @open="addRecentView" />
                         </div>
+                    </div>
+                    <div v-if="popularCategoryProducts.length > 4" class="mt-3 d-flex gap-2">
+                        <button class="btn btn-outline-success btn-sm" @click="showMorePopularProducts" :disabled="popularVisibleCount >= popularCategoryProducts.length">Show More</button>
+                        <button class="btn btn-outline-secondary btn-sm" @click="resetPopularProducts" :disabled="popularVisibleCount === 4">Show Less</button>
                     </div>
                 </div>
             </section>
@@ -62,9 +69,12 @@
             <div class="container">
                 <h1>Recently Viewed</h1>
                 <div class="row row-cols-1 row-cols-md-4 g-2 mt-2">
-                    <div v-for="product in recentViews" :key="`recent-${product.p_id}`" class="col d-flex">
-                        <ProductCard :product="product" @open="addRecentView" />
+                    <div v-for="product in visibleRecentViews" :key="`recent-${product.p_id}`" class="col d-flex">                        <ProductCard :product="product" @open="addRecentView" />
                     </div>
+                </div>
+                <div v-if="recentViews.length > 4" class="mt-3 d-flex gap-2">
+                    <button class="btn btn-outline-success btn-sm" @click="showMoreRecentViews" :disabled="recentVisibleCount >= recentViews.length">Show More</button>
+                    <button class="btn btn-outline-secondary btn-sm" @click="resetRecentViews" :disabled="recentVisibleCount === 4">Show Less</button>
                 </div>
                 <div v-if="!recentViews.length" class="text-muted">No recent views yet. Start exploring products.</div>
             </div>
@@ -95,6 +105,9 @@ import ProductCard from './ProductCard.vue'
         const categoryProducts = ref([])
         const recentViews = ref([])
         const topDealsVisibleCount = ref(4)
+         const popularVisibleCount = ref(4)
+        const categoryVisibleCount = ref(4)
+        const recentVisibleCount = ref(4)
 
         const dealTags = ['Top Deals', 'New Arrival', 'Limited Offer']
 
@@ -106,6 +119,18 @@ import ProductCard from './ProductCard.vue'
 
         const carouselDeals = computed(() =>
             topDeals.value.slice(0, 3)
+        )
+
+        const visiblePopularCategoryProducts = computed(() =>
+            popularCategoryProducts.value.slice(0, popularVisibleCount.value)
+        )
+
+        const visibleCategoryProducts = computed(() =>
+            categoryProducts.value.slice(0, categoryVisibleCount.value)
+        )
+
+        const visibleRecentViews = computed(() =>
+            recentViews.value.slice(0, recentVisibleCount.value)
         )
 
         const normalizeProducts = (products) =>
@@ -134,6 +159,8 @@ import ProductCard from './ProductCard.vue'
                 product,
                 ...recentViews.value.filter(item => item.p_id !== product.p_id)
             ].slice(0, 8)
+
+            recentVisibleCount.value = Math.max(4, Math.min(recentVisibleCount.value, recentViews.value.length))
         }
 
         const getTopDeals = async () => {
@@ -146,6 +173,7 @@ import ProductCard from './ProductCard.vue'
         const getPopularCategoryProducts = async () => {
             const { data } = await axios.get('/api/popular-products')
             popularCategoryProducts.value = normalizeProducts(data.products)
+            popularVisibleCount.value = 4
         }
 
         const getProductsByCategory = async (categoryId) => {
@@ -156,6 +184,7 @@ import ProductCard from './ProductCard.vue'
 
             const { data } = await axios.get(`/api/categories/${categoryId}/products`)
             categoryProducts.value = normalizeProducts(data.products)
+            categoryVisibleCount.value = 4
         }
 
         const showMoreDeals = () => {
@@ -167,6 +196,39 @@ import ProductCard from './ProductCard.vue'
 
         const resetDeals = () => {
             topDealsVisibleCount.value = 4
+        }
+
+        const showMorePopularProducts = () => {
+            popularVisibleCount.value = Math.min(
+                popularVisibleCount.value + 4,
+                popularCategoryProducts.value.length
+            )
+        }
+
+        const resetPopularProducts = () => {
+            popularVisibleCount.value = 4
+        }
+
+        const showMoreCategoryProducts = () => {
+            categoryVisibleCount.value = Math.min(
+                categoryVisibleCount.value + 4,
+                categoryProducts.value.length
+            )
+        }
+
+        const resetCategoryProducts = () => {
+            categoryVisibleCount.value = 4
+        }
+
+        const showMoreRecentViews = () => {
+            recentVisibleCount.value = Math.min(
+                recentVisibleCount.value + 4,
+                recentViews.value.length
+            )
+        }
+
+        const resetRecentViews = () => {
+            recentVisibleCount.value = 4
         }
 
         watch(
@@ -189,11 +251,23 @@ import ProductCard from './ProductCard.vue'
             carouselDeals,
             selectedCategoryId,
             visibleTopDeals,
+            visiblePopularCategoryProducts,
+            visibleCategoryProducts,
+            visibleRecentViews,
             topDealsVisibleCount,
+            popularVisibleCount,
+            categoryVisibleCount,
+            recentVisibleCount,
             showMoreDeals,
             resetDeals,
-            getDiscountPercent,   // ✅ ADD THIS
-            getDealTag,           // ✅ ADD THIS
+            showMorePopularProducts,
+            resetPopularProducts,
+            showMoreCategoryProducts,
+            resetCategoryProducts,
+            showMoreRecentViews,
+            resetRecentViews,
+            getDiscountPercent,   
+            getDealTag,
             addRecentView
         }
         }

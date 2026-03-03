@@ -17,7 +17,7 @@ class HomeController extends Controller
             })
             ->where('is_active', true)
             ->latest()
-            ->take(8)
+            ->take(16)
             ->get()
             ->map(fn ($product) => $this->formatProductImage($product));
 
@@ -82,7 +82,7 @@ class HomeController extends Controller
 
     public function topDeals()
     {
-        $limit = max(1, min((int) request('limit', 4), 40));
+        $limit = max(1, min((int) request('limit', 16), 40));
 
         $products = Product::with(['category', 'discount', 'mainImage', 'images', 'vender'])            ->where('is_top_deal', 1)
             ->where('is_active', true)

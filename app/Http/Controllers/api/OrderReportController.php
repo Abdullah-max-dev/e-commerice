@@ -28,7 +28,7 @@ class OrderReportController extends Controller
         $report = OrderReport::create([
             'order_id'    =>   $order->id,
             'user_id'     =>   $request->user()->id,
-            'message'     =>   $validate['message'],
+            'message'     =>   $validated['message'],
             'status'      =>   'pending'
         ]);
         return response()->json([
