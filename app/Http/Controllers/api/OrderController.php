@@ -224,8 +224,8 @@ class OrderController extends Controller
                     'line_total' => (float) $item->line_total,
                 ];
             })->values(),
-            'already_reported' => $order->relatonLoaded('reports') ? $order->reports
-                                                                ->where('user_id'->user_id)
+            'already_reported' => $order->relationLoaded('reports') ? $order->reports
+                                                                ->where('user_id', $order->user_id)
                                                                 ->isNotEmpty() : false
         ];
     }

@@ -98,26 +98,29 @@ class HomeController extends Controller
 
     public function adminSelectedCategories(){
         $categories = \App\Models\Category::query()
-            ->when('is_popular',1)
+            ->where('is_popular',1)
             ->latest('c_id')
-            ->get(['c_id','c_name','is_popular']);
-            return response()->json(['categories' => $categories]);
+            ->get(['c_id', 'c_name', 'is_popular']);
+
+        return response()->json(['categories' => $categories]);
     }
 
-    public function productByCategory(int $CategoryId){
-        $product= Product::with(['category','discount','mainImage','image','vender'])
-                    ->where('c_id',$categoryId)
-                    ->where('is_active',true)
-                    ->latest()
-                    ->take(24)
-                    ->get()
-                    ->map(fn($product) => $this->formateProductImage($product));
-                    return response()->json([
-                        'product' => $products,
-                    ]);
+    public function productsByCategory(int $categoryId)
+    {
+        $products = Product::with(['category', 'discount', 'mainImage', 'images', 'vender'])
+            ->where('c_id', $categoryId)
+            ->where('is_active', true)
+            ->latest()
+            ->take(24)
+            ->get()
+            ->map(fn ($product) => $this->formatProductImage($product));
+
+        return response()->json([
+            'products' => $products,
+        ]);
     }
 
-    private function formatProductImage($product)
+        private function formatProductImage($product)
     {
 
         $product->p_image = $product->mainImage

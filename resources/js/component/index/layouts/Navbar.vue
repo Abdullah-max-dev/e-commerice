@@ -21,7 +21,7 @@
                 <router-link to = '/vender-register'
                 v-if="!$store.getters.isVendor && !$store.getters.isAdmin"
                 class="btn btn-warning px-4 py-2"
-                @click="handleBecomeSeller"
+                
                 >
                 Become a Seller
                 </router-link>

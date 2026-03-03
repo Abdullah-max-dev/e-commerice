@@ -102,9 +102,14 @@ export default {
     const reportMessage = ref('')
     const submittingReport = ref(false)
 
-    const fetchOrders = async () => {
-      loading.value = true
-      error.value = ''
+    const fetchOrders = async ({ silent = false } = {}) => {
+      if (!silent) {
+        loading.value = true
+      }
+
+      if (!silent || !orders.value.length) {
+        error.value = ''
+      }
       try {
         const token = localStorage.getItem('token')
         const { data } = await axios.get('/api/orders', {
@@ -114,8 +119,9 @@ export default {
       } catch (err) {
         error.value = err.response?.data?.message || 'Unable to load orders.'
       } finally {
-        loading.value = false
-      }
+        if (!silent) {
+          loading.value = false
+        }
     }
 
     const statusBadge = (status) => ({
@@ -169,7 +175,9 @@ export default {
 
     onMounted(() => {
       fetchOrders()
-      intervalId = setInterval(fetchOrders, 15000)
+       intervalId = setInterval(() => {
+        fetchOrders({ silent: true })
+      }, REFRESH_INTERVAL_MS)
     })
 
     onUnmounted(() => {
