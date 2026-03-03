@@ -92,6 +92,7 @@ import axios from 'axios'
 import { onMounted, onUnmounted, ref } from 'vue'
 import UserMain from './layouts/UserMain.vue'
 
+const REFRESH_INTERVAL_MS = 15000
 export default {
   components: { UserMain },
   setup() {
@@ -122,6 +123,7 @@ export default {
         if (!silent) {
           loading.value = false
         }
+    }
     }
 
     const statusBadge = (status) => ({

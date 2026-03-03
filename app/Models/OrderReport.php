@@ -17,13 +17,15 @@ class OrderReport extends Model
         'status',
         'reviewed_at',
     ];
-    protected $cast = [
-        'reviewed_at' =>'database',
+    protected $casts = [
+        'reviewed_at' => 'datetime',
     ];
-    public function order(){
+    public function order()
+    {
         return $this->belongsTo(Order::class);
     }
-    public function user(){
-        return $this->belongTo(User::class);
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

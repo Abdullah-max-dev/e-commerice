@@ -10,42 +10,44 @@ use Illuminate\Http\Request;
 
 class UserProductReportController extends Controller
 {
-   public function index(Request $request){
+   public function index(Request $request)
+    {
+        $reports = ProductReport::query()
+            ->with(['product:p_id,p_name'])
+            ->where('user_id', $request->user()->id)
+            ->latest('id')
+            ->paginate(20)
+            ->through(fn (ProductReport $report) => [
+                'id' => $report->id,
+                'product_name' => $report->product?->p_name,
+                'reason' => $report->reason,
+                'message' => $report->message,
+                'status' => $report->status,
+                'is_read' => (bool) $report->reporter_read_at,
+                'created_at' => optional($report->created_at)->toDateTimeString(),
+            ]);
 
-   $reports = ProductReport::query()
-              ->ith(['product:p_id,p_name'])
-              ->where('user_id',$request->user()->id)
-              ->latest('id')
-              ->paginate(20)
-              ->through(fn(ProductReport $report) =>[
-                   'id'            =>  $report->is,
-                   'product_name'  =>  $report->product?->p_name,
-                   'reason'        =>  $report->reason,
-                   'message'       =>  $report->message,
-                   'status'        =>  $report->status,
-                   'is_read'       =>  (bool) $report->reporter_read_at,
-                   'created_at'    =>  optional($report->created_at)->toDateTimeString(),
-                ]);
+        return response()->json([
+            'data' => $reports,
+            'unread_count' => ProductReport::query()
+                ->where('user_id', $request->user()->id)
+                ->whereNull('reporter_read_at')
+                ->count(),
+        ]);
+    }
 
-                return response()->json([
-                    'data'          =>   $report,
-                    'unread_count'  =>   ProductReport::query()->where('user_id',$requets->user()->id)
-                                                               ->whereNull('reporter_read_at')
-                                                               ->count()
-                ]);
-
-   }
-
-    public function markAsRead(Request $requets, int $id){
+    public function markAsRead(Request $request, int $id)
+    {
         $report = ProductReport::query()
-        ->where('id',$id)
-        ->where('user_id',$request->user()->id)
-        ->firstOrFail();
-        if(!$report->reporter_read_at){
+            ->where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
+
+        if (! $report->reporter_read_at) {
             $report->update(['reporter_read_at' => now()]);
         }
         return response()->json([
-            'message'  =>  'report Marked as read,'
+            'message'  =>  'Report marked as read.'
         ]);
 
 
@@ -54,7 +56,7 @@ class UserProductReportController extends Controller
     public function store(Request $request, int $id)
     {
         $validated = $request->validate([
-            'reason' => ['required', 'string', 'in:'.implode(',', ProductReport::REASONS)],
+            'reason' => ['required', 'string', 'in:' . implode(',', ProductReport::REASONS)],
             'message' => ['nullable', 'string', 'max:2000'],
         ]);
 
@@ -77,7 +79,7 @@ class UserProductReportController extends Controller
             'reason' => $validated['reason'],
             'message' => $validated['message'] ?? null,
             'status' => 'pending',
-            'vedor_warning_sent'  =>true,
+            'vendor_warning_sent'  =>true,
         ]);
 
         $product->increment('report_count');
